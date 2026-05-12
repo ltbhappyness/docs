@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <style>
+      .bg{fill:#f4ecd8}
+      .title{fill:#1a3a5c;font-size:20px;font-weight:700;text-anchor:middle}
+      .l0{fill:#1a3a5c}
+      .l1{fill:#2e5984}
+      .l2{fill:#79a3c9}
+      .l3{fill:#b6cce0}
+      .lbox{stroke:#0e2540;stroke-width:1.5}
+      .l-name-d{fill:#fff;font-size:16px;font-weight:700}
+      .l-name-l{fill:#1a3a5c;font-size:16px;font-weight:700}
+      .l-detail-d{fill:#e8eef2;font-size:11px}
+      .l-detail-l{fill:#2b2b2b;font-size:11px}
+      .anchor{stroke:#c9a227;stroke-width:2;fill:none;stroke-dasharray:6 4;marker-end:url(#ah)}
+      .label{fill:#c9a227;font-size:11px;font-weight:700;text-anchor:middle}
+      .panel{fill:#fff;stroke:#1a3a5c;stroke-width:1;rx:4}
+      .panel-h{fill:#1a3a5c;font-size:13px;font-weight:700;text-anchor:middle}
+      .panel-t{fill:#2b2b2b;font-size:10px;text-anchor:middle}
+    </style>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c9a227"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="900" height="600"/>
+  <text class="title" x="450" y="32">Layered consensus  -  global root anchors per-shard finality</text>
+
+  <!-- L0 -->
+  <rect class="lbox l0" x="100" y="60" width="700" height="80" rx="4"/>
+  <text class="l-name-d" x="120" y="85">L0  -  Global state root committee</text>
+  <text class="l-detail-d" x="120" y="105">HotStuff (or Bullshark variant), 50 - 200 rotating Class-A validators, deterministic finality 1 - 2 s</text>
+  <text class="l-detail-d" x="120" y="121">finalises the Merkle-of-Merkles over all shard heads - single canonical view</text>
+
+  <!-- L1 shards -->
+  <g>
+    <rect class="lbox l1" x="100" y="190" width="200" height="80" rx="4"/>
+    <text class="l-name-d" x="120" y="215">L1  -  Shard A</text>
+    <text class="l-detail-d" x="120" y="234">topic / app shard</text>
+    <text class="l-detail-d" x="120" y="248">BFT among shard peers</text>
+    <text class="l-detail-d" x="120" y="262">anchors to L0 every K cmts</text>
+
+    <rect class="lbox l1" x="350" y="190" width="200" height="80" rx="4"/>
+    <text class="l-name-d" x="370" y="215">L1  -  Shard B</text>
+    <text class="l-detail-d" x="370" y="234">e.g. chanting feed</text>
+    <text class="l-detail-d" x="370" y="248">independent BFT</text>
+    <text class="l-detail-d" x="370" y="262">independent finality</text>
+
+    <rect class="lbox l1" x="600" y="190" width="200" height="80" rx="4"/>
+    <text class="l-name-d" x="620" y="215">L1  -  Shard C</text>
+    <text class="l-detail-d" x="620" y="234">e.g. app-marketplace</text>
+    <text class="l-detail-d" x="620" y="248">independent BFT</text>
+    <text class="l-detail-d" x="620" y="262">independent finality</text>
+
+    <line class="anchor" x1="200" y1="190" x2="450" y2="140"/>
+    <line class="anchor" x1="450" y1="190" x2="450" y2="140"/>
+    <line class="anchor" x1="700" y1="190" x2="450" y2="140"/>
+    <text class="label" x="320" y="170">root anchor</text>
+  </g>
+
+  <!-- L2 chapters -->
+  <g>
+    <rect class="lbox l2" x="100" y="330" width="200" height="60" rx="4"/>
+    <text class="l-name-l" x="120" y="355">L2  -  Chapter (user)</text>
+    <text class="l-detail-l" x="120" y="372">single-writer, signed by owner</text>
+    <text class="l-detail-l" x="120" y="386">no consensus needed; replicated P2P</text>
+
+    <rect class="lbox l2" x="350" y="330" width="200" height="60" rx="4"/>
+    <text class="l-name-l" x="370" y="355">L2  -  Chapter (machine)</text>
+    <text class="l-detail-l" x="370" y="372">single-writer, signed by HW key</text>
+    <text class="l-detail-l" x="370" y="386">attested by TPM / Secure Enclave</text>
+
+    <rect class="lbox l2" x="600" y="330" width="200" height="60" rx="4"/>
+    <text class="l-name-l" x="620" y="355">L2  -  Chapter (group)</text>
+    <text class="l-detail-l" x="620" y="372">N-of-M signers (FROST)</text>
+    <text class="l-detail-l" x="620" y="386">threshold-signed commits</text>
+
+    <line class="anchor" x1="200" y1="330" x2="200" y2="270"/>
+    <line class="anchor" x1="450" y1="330" x2="450" y2="270"/>
+    <line class="anchor" x1="700" y1="330" x2="700" y2="270"/>
+  </g>
+
+  <!-- L3 IoT -->
+  <g>
+    <rect class="lbox l3" x="100" y="450" width="700" height="80" rx="4"/>
+    <text class="l-name-l" x="120" y="475">L3  -  IoT / device telemetry</text>
+    <text class="l-detail-l" x="120" y="495">signed by device HW key, batched by gateway, anchored to L2 every N seconds</text>
+    <text class="l-detail-l" x="120" y="511">device never participates in consensus; verifies via O(log n) Merkle proofs</text>
+
+    <line class="anchor" x1="200" y1="450" x2="200" y2="390"/>
+    <line class="anchor" x1="450" y1="450" x2="450" y2="390"/>
+    <line class="anchor" x1="700" y1="450" x2="700" y2="390"/>
+  </g>
+
+  <text x="450" y="570" font-size="11" fill="#2b2b2b" text-anchor="middle" font-style="italic">
+    Mean time to user-perceived finality: L2/L3 H 100 ms . L1 H 1 s . L0 H 2 s . world-confirmed H 4 s
+  </text>
+</svg>

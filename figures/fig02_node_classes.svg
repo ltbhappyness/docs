@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <style>
+      .bg{fill:#f4ecd8}
+      .title{fill:#1a3a5c;font-size:20px;font-weight:700;text-anchor:middle}
+      .col-a{fill:#1a3a5c}
+      .col-b{fill:#2e5984}
+      .col-c{fill:#79a3c9}
+      .col-d{fill:#b6cce0}
+      .col-e{fill:#e8eef2;stroke:#79a3c9;stroke-width:1}
+      .class-name{fill:#fff;font-size:18px;font-weight:700;text-anchor:middle}
+      .class-name-light{fill:#1a3a5c;font-size:18px;font-weight:700;text-anchor:middle}
+      .role{fill:#fff;font-size:12px;text-anchor:middle}
+      .role-light{fill:#1a3a5c;font-size:12px;text-anchor:middle}
+      .row-label{fill:#1a3a5c;font-size:11px;font-weight:700;text-anchor:end}
+      .cell{fill:#2b2b2b;font-size:10px;text-anchor:middle}
+      .axis{stroke:#c9a227;stroke-width:1;fill:none}
+    </style>
+  </defs>
+  <rect class="bg" width="1000" height="600"/>
+  <text class="title" x="500" y="32">Node capability classes  -  storage strategy and roles</text>
+
+  <!-- 5 columns -->
+  <g>
+    <rect class="col-a" x="160" y="70" width="140" height="60" rx="4"/>
+    <text class="class-name" x="230" y="98">Class A</text>
+    <text class="role"       x="230" y="118">S3E / Archivist</text>
+
+    <rect class="col-b" x="320" y="70" width="140" height="60" rx="4"/>
+    <text class="class-name" x="390" y="98">Class B</text>
+    <text class="role"       x="390" y="118">Validator / Full</text>
+
+    <rect class="col-c" x="480" y="70" width="140" height="60" rx="4"/>
+    <text class="class-name" x="550" y="98">Class C</text>
+    <text class="role"       x="550" y="118">Operator / Light</text>
+
+    <rect class="col-d" x="640" y="70" width="140" height="60" rx="4"/>
+    <text class="class-name-light" x="710" y="98">Class D</text>
+    <text class="role-light"       x="710" y="118">Edge / IoT</text>
+
+    <rect class="col-e" x="800" y="70" width="140" height="60" rx="4"/>
+    <text class="class-name-light" x="870" y="98">Class E</text>
+    <text class="role-light"       x="870" y="118">Browser / Ephemeral</text>
+  </g>
+
+  <!-- Rows -->
+  <g>
+    <text class="row-label" x="150" y="170">Storage</text>
+    <text class="cell" x="230" y="170">--mirror, all shards</text>
+    <text class="cell" x="230" y="186">all history</text>
+    <text class="cell" x="390" y="170">subscribed shards</text>
+    <text class="cell" x="390" y="186">depth=N for others</text>
+    <text class="cell" x="550" y="170">tip + last K commits</text>
+    <text class="cell" x="550" y="186">filter=blob:none</text>
+    <text class="cell" x="710" y="170">signed root headers</text>
+    <text class="cell" x="710" y="186">on-demand proofs</text>
+    <text class="cell" x="870" y="170">none</text>
+    <text class="cell" x="870" y="186">RPC only</text>
+
+    <text class="row-label" x="150" y="230">Disk budget</text>
+    <text class="cell" x="230" y="230">e 10 TB</text>
+    <text class="cell" x="390" y="230">100 GB  -  2 TB</text>
+    <text class="cell" x="550" y="230">5  -  50 GB</text>
+    <text class="cell" x="710" y="230">&lt; 100 MB</text>
+    <text class="cell" x="870" y="230">H 0</text>
+
+    <text class="row-label" x="150" y="285">RAM</text>
+    <text class="cell" x="230" y="285">16 GB+</text>
+    <text class="cell" x="390" y="285">4 - 16 GB</text>
+    <text class="cell" x="550" y="285">1 - 4 GB</text>
+    <text class="cell" x="710" y="285">&lt; 256 MB</text>
+    <text class="cell" x="870" y="285">browser</text>
+
+    <text class="row-label" x="150" y="340">Consensus role</text>
+    <text class="cell" x="230" y="340">committee anchor</text>
+    <text class="cell" x="230" y="356">global root</text>
+    <text class="cell" x="390" y="340">shard validator</text>
+    <text class="cell" x="390" y="356">vote / propose</text>
+    <text class="cell" x="550" y="340">verify</text>
+    <text class="cell" x="710" y="340">submit only</text>
+    <text class="cell" x="710" y="356">trust-by-proof</text>
+    <text class="cell" x="870" y="340">none</text>
+
+    <text class="row-label" x="150" y="395">Apps installed</text>
+    <text class="cell" x="230" y="395">all</text>
+    <text class="cell" x="390" y="395">most</text>
+    <text class="cell" x="550" y="395">user-selected</text>
+    <text class="cell" x="710" y="395">1 - 2 (chanting,</text>
+    <text class="cell" x="710" y="411">telemetry)</text>
+    <text class="cell" x="870" y="395">UI only</text>
+
+    <text class="row-label" x="150" y="450">Network role</text>
+    <text class="cell" x="230" y="450">discovery beacon</text>
+    <text class="cell" x="230" y="466">always-online</text>
+    <text class="cell" x="390" y="450">peer + relay</text>
+    <text class="cell" x="550" y="450">peer</text>
+    <text class="cell" x="710" y="450">leaf, NAT'd</text>
+    <text class="cell" x="870" y="450">client</text>
+
+    <text class="row-label" x="150" y="510">Hardware target</text>
+    <text class="cell" x="230" y="510">server / datacenter</text>
+    <text class="cell" x="390" y="510">workstation / VPS</text>
+    <text class="cell" x="550" y="510">laptop / Pi 5</text>
+    <text class="cell" x="710" y="510">phone / Pi Zero</text>
+    <text class="cell" x="710" y="526">/ ESP32 via gw</text>
+    <text class="cell" x="870" y="510">browser tab</text>
+  </g>
+
+  <line class="axis" x1="160" y1="145" x2="940" y2="145"/>
+  <line class="axis" x1="160" y1="555" x2="940" y2="555"/>
+  <text class="cell" x="500" y="582" font-style="italic">Same software, different defconfigs. CMake .config selects per-class build.</text>
+</svg>

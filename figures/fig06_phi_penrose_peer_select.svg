@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <style>
+      .bg{fill:#f4ecd8}
+      .title{fill:#1a3a5c;font-size:20px;font-weight:700;text-anchor:middle}
+      .thick{fill:#dfe7f0;stroke:#1a3a5c;stroke-width:1.2}
+      .thin {fill:#fff8df;stroke:#1a3a5c;stroke-width:1.2}
+      .me{fill:#c9a227;stroke:#1a3a5c;stroke-width:2}
+      .peer{fill:#2e5984;stroke:#0e2540;stroke-width:1.5}
+      .other{fill:#b6cce0;stroke:#79a3c9;stroke-width:1}
+      .ring{fill:none;stroke:#c9a227;stroke-width:1.5;stroke-dasharray:5 3}
+      .label{fill:#1a3a5c;font-size:12px;font-weight:700}
+      .small{fill:#2b2b2b;font-size:11px}
+      .mono{font-family:monospace;font-size:11px;fill:#1a3a5c}
+      .caption{fill:#2b2b2b;font-size:11px;font-style:italic;text-anchor:middle}
+      .panel{fill:#fff;stroke:#1a3a5c;stroke-width:1}
+    </style>
+  </defs>
+  <rect class="bg" width="900" height="700"/>
+  <text class="title" x="450" y="32">Penrose-neighborhood peer selection (golden-ratio integer ring Z[phi])</text>
+
+  <!-- Stylized P3 rhomb tiling around center -->
+  <g transform="translate(280,330)">
+    <!-- Inner ring of thick rhombs (5-fold) -->
+    <g>
+      <polygon class="thick" points="0,-90 51,-28 0,34 -51,-28"/>
+      <polygon class="thick" points="0,-90 51,-28 0,34 -51,-28" transform="rotate(72)"/>
+      <polygon class="thick" points="0,-90 51,-28 0,34 -51,-28" transform="rotate(144)"/>
+      <polygon class="thick" points="0,-90 51,-28 0,34 -51,-28" transform="rotate(216)"/>
+      <polygon class="thick" points="0,-90 51,-28 0,34 -51,-28" transform="rotate(288)"/>
+    </g>
+    <!-- Outer ring of thin rhombs -->
+    <g>
+      <polygon class="thin" points="-51,-130 18,-92 -8,-32 -71,-58" transform="rotate(0)"/>
+      <polygon class="thin" points="-51,-130 18,-92 -8,-32 -71,-58" transform="rotate(72)"/>
+      <polygon class="thin" points="-51,-130 18,-92 -8,-32 -71,-58" transform="rotate(144)"/>
+      <polygon class="thin" points="-51,-130 18,-92 -8,-32 -71,-58" transform="rotate(216)"/>
+      <polygon class="thin" points="-51,-130 18,-92 -8,-32 -71,-58" transform="rotate(288)"/>
+    </g>
+    <!-- Outer thicks -->
+    <g>
+      <polygon class="thick" points="0,-160 60,-100 0,-40 -60,-100" transform="rotate(36) translate(0,-40)"/>
+      <polygon class="thick" points="0,-160 60,-100 0,-40 -60,-100" transform="rotate(108) translate(0,-40)"/>
+      <polygon class="thick" points="0,-160 60,-100 0,-40 -60,-100" transform="rotate(180) translate(0,-40)"/>
+      <polygon class="thick" points="0,-160 60,-100 0,-40 -60,-100" transform="rotate(252) translate(0,-40)"/>
+      <polygon class="thick" points="0,-160 60,-100 0,-40 -60,-100" transform="rotate(324) translate(0,-40)"/>
+    </g>
+
+    <circle class="ring" r="60"/>
+    <circle class="ring" r="100"/>
+    <circle class="ring" r="155"/>
+
+    <!-- Center node (me) -->
+    <circle class="me" r="9"/>
+    <text class="label" x="-12" y="-20" text-anchor="end">me</text>
+
+    <!-- Selected peers on inner ring vertices (5-fold positions) -->
+    <g>
+      <circle class="peer" cx="0"   cy="-60"  r="6"/>
+      <circle class="peer" cx="57"  cy="-19"  r="6"/>
+      <circle class="peer" cx="35"  cy="49"   r="6"/>
+      <circle class="peer" cx="-35" cy="49"   r="6"/>
+      <circle class="peer" cx="-57" cy="-19"  r="6"/>
+    </g>
+    <!-- Outer ring peers -->
+    <g>
+      <circle class="peer" cx="0"    cy="-100" r="5"/>
+      <circle class="peer" cx="95"   cy="-31"  r="5"/>
+      <circle class="peer" cx="59"   cy="81"   r="5"/>
+      <circle class="peer" cx="-59"  cy="81"   r="5"/>
+      <circle class="peer" cx="-95"  cy="-31"  r="5"/>
+    </g>
+    <!-- Other (non-peer) nodes scattered -->
+    <g>
+      <circle class="other" cx="20"   cy="-150" r="3"/>
+      <circle class="other" cx="-130" cy="-60"  r="3"/>
+      <circle class="other" cx="135"  cy="40"   r="3"/>
+      <circle class="other" cx="-90"  cy="120"  r="3"/>
+      <circle class="other" cx="80"   cy="130"  r="3"/>
+      <circle class="other" cx="-150" cy="20"   r="3"/>
+      <circle class="other" cx="160"  cy="-90"  r="3"/>
+    </g>
+  </g>
+
+  <!-- Right panel: math sketch -->
+  <rect class="panel" x="540" y="80" width="330" height="540" rx="4"/>
+  <text class="label"  x="555" y="105">Integer-only Z[phi] arithmetic</text>
+  <text class="small"  x="555" y="125">- Golden ratio ring: a + b * phi   (a, b in Z)</text>
+  <text class="small"  x="555" y="142">- Stored as int64 pairs (a, b)</text>
+  <text class="small"  x="555" y="159">- Multiply by phi: (a, b) -&gt; (b, a + b)</text>
+  <text class="small"  x="555" y="176">- All Penrose vertex coordinates exact</text>
+
+  <text class="label"  x="555" y="210">Peer selection algorithm</text>
+  <text class="mono"   x="555" y="232">v = SHA256(my-identity || epoch)</text>
+  <text class="mono"   x="555" y="248">tile_id = v mod N_tiles_in_universe</text>
+  <text class="mono"   x="555" y="264">my_vertex = tiling.vertex_of(tile_id)</text>
+  <text class="mono"   x="555" y="280">peers = tiling.k_nearest(my_vertex, K)</text>
+  <text class="mono"   x="555" y="296">peers = filter(reachable + reputation)</text>
+
+  <text class="label"  x="555" y="330">Eclipse resistance properties</text>
+  <text class="small"  x="555" y="350">- Aperiodic: no periodic adversary structure</text>
+  <text class="small"  x="555" y="367">- 5-fold symmetric: balanced neighborhoods</text>
+  <text class="small"  x="555" y="384">- Deterministic per (id, epoch): re-derivable</text>
+  <text class="small"  x="555" y="401">- Per-epoch rotation: short-lived attack window</text>
+  <text class="small"  x="555" y="418">- Adversary needs Sybils on N specific tiles</text>
+
+  <text class="label"  x="555" y="452">Rate-limit back-off (Fibonacci ms)</text>
+  <text class="mono"   x="555" y="472">F(n) = 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, ...</text>
+  <text class="small"  x="555" y="492">- on conflict: retry at F(n) ms windows</text>
+  <text class="small"  x="555" y="509">- F(n+1)/F(n) -&gt; phi  (asymptotic)</text>
+  <text class="small"  x="555" y="526">- no floats; no jitter source needed</text>
+
+  <text class="label"  x="555" y="560">Mission alignment</text>
+  <text class="small"  x="555" y="580">Vedam embeds the geometry in the protocol</text>
+  <text class="small"  x="555" y="597">- not as ornament. The math IS the policy.</text>
+
+  <text class="caption" x="450" y="660">Peer set is unpredictable to attackers, deterministic to honest nodes, and bounded by 5-fold symmetry.</text>
+</svg>

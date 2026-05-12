@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="-320 -320 640 640"
+     role="img"
+     aria-labelledby="vedamTitle vedamDesc"
+     preserveAspectRatio="xMidYMid meet">
+  <title id="vedamTitle">vedam</title>
+  <desc id="vedamDesc">
+    Six regular pentagons in fivefold symmetry: one centre pentagon with its apex pointing up, surrounded by five outer pentagons, each sharing one full edge with the centre pentagon. All six pentagons have the same circumradius. The diagonal-to-side ratio of any regular pentagon is the golden ratio phi, approximately 1.6180339887. A V accent is overlaid on top, with its apex at the bottom outermost vertex and its arms extending to the upper-outer vertices of the upper-left and upper-right outer pentagons. Each arm of the V is collinear through four points  an outer pentagon's outermost vertex, two centre-pentagon vertices, and the bottom apex  so the V traces two natural diagonals of the composition rather than being an arbitrary overlay.
+  </desc>
+
+  <g fill="#1a3a5c" stroke="none" fill-opacity="0.96">
+    <polygon points="0,-100 95.1057,-30.9017 58.7785,80.9017 -58.7785,80.9017 -95.1057,-30.9017" />
+    <polygon points="0,-100 36.3271,-211.8034 153.8843,-211.8034 190.2113,-100 95.1057,-30.9017" />
+    <polygon points="95.1057,-30.9017 212.6628,-30.9017 248.9899,80.9017 153.8843,150 58.7785,80.9017" />
+    <polygon points="58.7785,80.9017 95.1057,192.7051 0,261.8034 -95.1057,192.7051 -58.7785,80.9017" />
+    <polygon points="-58.7785,80.9017 -153.8843,150 -248.9899,80.9017 -212.6628,-30.9017 -95.1057,-30.9017" />
+    <polygon points="-95.1057,-30.9017 -190.2113,-100 -153.8843,-211.8034 -36.3271,-211.8034 0,-100" />
+  </g>
+
+  <path d="M -153.8843,-211.8034 L 0,261.8034 L 153.8843,-211.8034"
+        fill="none"
+        stroke="#c9a227"
+        stroke-width="14"
+        stroke-linecap="round"
+        stroke-linejoin="round" />
+</svg>

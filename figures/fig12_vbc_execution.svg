@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 600" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <style>
+      .bg{fill:#f4ecd8}
+      .title{fill:#1a3a5c;font-size:20px;font-weight:700;text-anchor:middle}
+      .stage{fill:#dfe7f0;stroke:#1a3a5c;stroke-width:1.5}
+      .stage-h{fill:#1a3a5c;font-size:13px;font-weight:700;text-anchor:middle}
+      .stage-t{fill:#2b2b2b;font-size:11px;text-anchor:middle}
+      .arrow{stroke:#c9a227;stroke-width:2;fill:none;marker-end:url(#ah)}
+      .panel{fill:#fff;stroke:#1a3a5c;stroke-width:1}
+      .panel-h{fill:#1a3a5c;font-size:13px;font-weight:700}
+      .small{fill:#2b2b2b;font-size:11px}
+      .mono{font-family:monospace;font-size:11px;fill:#1a3a5c}
+      .caption{fill:#2b2b2b;font-size:11px;font-style:italic;text-anchor:middle}
+    </style>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c9a227"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="980" height="600"/>
+  <text class="title" x="490" y="32">Vedam ByteCode (vbc): integer-only deterministic interpreter</text>
+
+  <!-- Pipeline -->
+  <g>
+    <rect class="stage" x="40"  y="80" width="160" height="80" rx="4"/>
+    <text class="stage-h" x="120" y="105">Source</text>
+    <text class="stage-t" x="120" y="125">subset of C / Rust /</text>
+    <text class="stage-t" x="120" y="141">small high-level lang</text>
+
+    <rect class="stage" x="220" y="80" width="160" height="80" rx="4"/>
+    <text class="stage-h" x="300" y="105">Compiler</text>
+    <text class="stage-t" x="300" y="125">vbc-cc (deterministic)</text>
+    <text class="stage-t" x="300" y="141">no FP, bounded mem</text>
+
+    <rect class="stage" x="400" y="80" width="160" height="80" rx="4"/>
+    <text class="stage-h" x="480" y="105">vbc binary (TLV)</text>
+    <text class="stage-t" x="480" y="125">commit + sign</text>
+    <text class="stage-t" x="480" y="141">stored in git tree</text>
+
+    <rect class="stage" x="580" y="80" width="160" height="80" rx="4"/>
+    <text class="stage-h" x="660" y="105">Interpreter (C, ~1k LOC)</text>
+    <text class="stage-t" x="660" y="125">runs on any node</text>
+    <text class="stage-t" x="660" y="141">x86 / arm / riscv same</text>
+
+    <rect class="stage" x="760" y="80" width="180" height="80" rx="4"/>
+    <text class="stage-h" x="850" y="105">Result tree blob</text>
+    <text class="stage-t" x="850" y="125">deterministic output</text>
+    <text class="stage-t" x="850" y="141">consensus agrees</text>
+
+    <line class="arrow" x1="200" y1="120" x2="220" y2="120"/>
+    <line class="arrow" x1="380" y1="120" x2="400" y2="120"/>
+    <line class="arrow" x1="560" y1="120" x2="580" y2="120"/>
+    <line class="arrow" x1="740" y1="120" x2="760" y2="120"/>
+  </g>
+
+  <!-- Determinism guarantees panel -->
+  <rect class="panel" x="40" y="200" width="440" height="370" rx="4"/>
+  <text class="panel-h" x="50" y="220">Determinism by construction</text>
+  <text class="small" x="50" y="240">- Integer ops only: i32, i64, u32, u64.</text>
+  <text class="small" x="50" y="256">- Fixed-point math via explicit scale TLVs.</text>
+  <text class="small" x="50" y="272">- Big-int via int-vector ops (no GMP).</text>
+  <text class="small" x="50" y="288">- No floats. Phi math via Z[phi] integer ring.</text>
+  <text class="small" x="50" y="304">- No syscalls. Host functions table only.</text>
+  <text class="small" x="50" y="320">- No threads, no signals, no clock except injected.</text>
+  <text class="small" x="50" y="336">- No allocator: bump arena bounded by header.</text>
+  <text class="small" x="50" y="352">- Bytecode order = execution order (no JIT).</text>
+  <text class="small" x="50" y="368">- Defined endianness (little-endian on wire).</text>
+  <text class="small" x="50" y="384">- Defined integer overflow semantics (wrap).</text>
+
+  <text class="panel-h" x="50" y="420">Bounded resources</text>
+  <text class="small" x="50" y="440">- mem-bound declared in TLV header (default 64 KB).</text>
+  <text class="small" x="50" y="456">- gas-bound declared in TLV header (default 1e6 ops).</text>
+  <text class="small" x="50" y="472">- exceeding -&gt; deterministic abort, transaction void.</text>
+  <text class="small" x="50" y="488">- block-level total gas cap.</text>
+
+  <text class="panel-h" x="50" y="520">Host functions (capability table)</text>
+  <text class="mono"  x="50" y="540">read_state(key) -&gt; value</text>
+  <text class="mono"  x="50" y="555">write_state(key, value)</text>
+
+  <!-- Right panel: opcodes -->
+  <rect class="panel" x="500" y="200" width="440" height="370" rx="4"/>
+  <text class="panel-h" x="510" y="220">Opcode families (about 50 ops)</text>
+  <text class="mono" x="510" y="245">arithmetic    ADD SUB MUL DIV MOD AND OR XOR NOT SHL SHR</text>
+  <text class="mono" x="510" y="265">comparison    EQ NE LT GT LE GE</text>
+  <text class="mono" x="510" y="285">control       JMP JEQ JNE CALL RET HALT</text>
+  <text class="mono" x="510" y="305">memory        LOAD8 LOAD16 LOAD32 LOAD64 STORE...</text>
+  <text class="mono" x="510" y="325">stack         PUSH POP DUP SWAP</text>
+  <text class="mono" x="510" y="345">state         SREAD SWRITE SPATH SHASH</text>
+  <text class="mono" x="510" y="365">phi-ring      ZPHI_ADD ZPHI_MUL ZPHI_SCALE</text>
+  <text class="mono" x="510" y="385">crypto        HASH256 VERIFY_ED25519 VERIFY_BLS</text>
+  <text class="mono" x="510" y="405">tlv           TLV_NEW TLV_GET TLV_PUT</text>
+
+  <text class="panel-h" x="510" y="445">Comparison with EVM/WASM</text>
+  <text class="small" x="510" y="465">- EVM: 256-bit native; we use 64-bit + bigint via vec.</text>
+  <text class="small" x="510" y="481">- WASM: rich; we deliberately stay smaller.</text>
+  <text class="small" x="510" y="497">- Goal: 1 KLOC interpreter; runs on Pi Zero.</text>
+  <text class="small" x="510" y="513">- Ship runtime as ~16 KB static binary.</text>
+  <text class="small" x="510" y="535" font-style="italic">- Tier-2 escape valve: native code via reproducible</text>
+  <text class="small" x="510" y="551" font-style="italic">  build attestation (TODO; not for MVP).</text>
+
+  <text class="caption" x="490" y="590">Same source -&gt; same vbc binary -&gt; same result on every Linux node, regardless of distro, libc, or compiler.</text>
+</svg>
