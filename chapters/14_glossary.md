@@ -1,7 +1,5 @@
 # 14. Glossary
 
-> **Status:** skeleton — content migration from `vedam.docx` pending.
-
 Project-internal terms, kept in one place to avoid drift across pages.
 
 ---
@@ -22,7 +20,9 @@ Project-internal terms, kept in one place to avoid drift across pages.
 
 ## D
 
-**Decentralized! not divided.** — Project continuity marker; applies across humans, machines, and any future subjects of experience.
+**Designated host** — validator node selected by $H(\text{sender}, \text{app}, \text{repo}, \text{epoch})$ to sequence ingress for a window; **never** the submitter's own node instance. See [02_architecture.md](./02_architecture.md).
+
+**finality_digest** — SHA-256 over canonical tx bytes + parent ref + round hint; quorum ack target. Stored in ledger git metadata. See [05_consensus.md](./05_consensus.md).
 
 ## E
 
@@ -38,7 +38,7 @@ Project-internal terms, kept in one place to avoid drift across pages.
 
 ## N
 
-**Narwhal / Bullshark** — DAG-based mempool / ordering protocols Vedam pairs with HotStuff-class consensus.
+**Narwhal / Bullshark** — DAG-based mempool + BFT ordering of batch metadata; complements **per-commit async quorum** in v0.4. See [05_consensus.md](./05_consensus.md).
 
 ## P
 
@@ -56,7 +56,17 @@ Project-internal terms, kept in one place to avoid drift across pages.
 
 ## V
 
-**vbc** — Vedam ByteCode. Small integer-only deterministic interpreter in C; consensus-critical execution. See [06_execution.md](./06_execution.md).
+**vedam-client-*** — protobuf + library for apps: build/sign `vedam-tx`, call chat/identity gRPC.
+
+**vedam-host-*** — validator-side libraries: verify txs, canonical git recipe, compute `finality_digest`.
+
+**vedam-tx** — canonical versioned transaction envelope protobuf. See [06_execution.md](./06_execution.md).
+
+**vbc** — *(Round-1)* Vedam ByteCode — **historical**; superseded by v0.3 WASM (never shipped) and v0.4 native validation.
+
+**WASM dApp contract (Tier B)** — sandboxed `.wasm` for trustless rules (tokens, AMMs, composable calls). Distinct from EVM; see [06_execution.md](./06_execution.md) §6.0.
+
+**vedam-client-wallet** — keys, signing, nonce tracking; ships in client library, not on-chain.
 
 **Vedam** — the project's first product; the decentralized network itself; from *vedam* (Sanskrit / Malayalam: knowledge).
 

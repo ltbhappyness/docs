@@ -2,7 +2,7 @@
 
 Navigation: [vedam](../vedam.md) · [chapters/](../chapters/)
 
-> **Status:** the 12 numbered SVG files (`fig01..fig12`) in this directory are placeholders inherited from the retired `vedam.docx` pipeline. They are programmatic SVG (not literal hand-drawings), but they were authored for the Word artifact and need a professional rework before this docs set goes public. The 13th file, `vedam_logo.svg`, is the project mark and is treated as final.
+The twelve numbered SVG files (`fig01..fig12`) in this directory are placeholders inherited from the retired `vedam.docx` pipeline. They are programmatic SVG (not literal hand-drawings), but they were authored for the Word artifact and need a professional rework before this docs set goes public. The thirteenth file, `vedam_logo.svg`, is the project mark and is treated as final.
 
 ---
 

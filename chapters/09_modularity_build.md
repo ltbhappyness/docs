@@ -1,20 +1,118 @@
 # 9. Modularity and build
 
-> **Status:** skeleton — content migration from `vedam.docx` pending.
-
-**CMake + defconfig files** per node class (no Kconfig). Modules split into `core-*` and `app-*`; inter-process communication is **gRPC over Unix domain socket**. Reproducibility direction: **Nix flakes** with builder **capability gossip** and content-addressed cache.
+The implementation monorepo ([github.com/ltbhappyness/vedam](https://github.com/ltbhappyness/vedam)) uses **CMake + per-class defconfig**, **protobuf/gRPC**, and **Nix flakes** for reproducibility. Design **v0.4**: Vedam **does not ship prebuilt node binaries** — it ships **source, schemas, and build recipes**; operators and devices **build or cross-compile** installable packages with **OTA update** support.
 
 ---
 
-## 9.1 Sections to fill (placeholders)
+## 9.1 Repository layout
 
-- 9.1.1 Repo layout for [vedam/](https://github.com/ltbhappyness/vedam): `modules/core-*`, `modules/app-*`, `config/defconfig.class-*`, `proto/`, `tools/`.
-- 9.1.2 Per-class defconfig files (`config/defconfig.class-a` … `class-e`); `VEDAM_NODE_CLASS` selector; `config/schema.proto` for non-C tooling.
-- 9.1.3 Defconfig parsing — currently a stub in CMake; needs key=value parsing or generated `vedam_config.cmake`; gate `add_subdirectory` accordingly.
-- 9.1.4 Module list and intent — see [02_architecture.md](./02_architecture.md) and `vedam/AGENTS.md`.
-- 9.1.5 IPC schema: `.proto` sources under `proto/` and `modules/*/proto/`; gRPC over UDS for same-host; gRPC frames over libp2p streams for cross-host — link to [04_network.md](./04_network.md).
-- 9.1.6 Reproducible builds: Nix flakes; builder capability gossip; k-of-N attestation policy optional.
-- 9.1.7 Versioning: semver per app; warm vs cold upgrades; optimistic cross-version compatibility with explicit deprecation windows.
+```
+vedam/
+  proto/
+    vedam-tx/
+    vedam-consensus/
+    vedam-identity/
+    vedam-chat/
+    vedam-infer/          # Phase 2 — app NN API, not consensus core
+  lib/
+    vedam-client-*        # linked by mobile/web/apps
+    vedam-host-*          # linked by validator daemons
+  plugins/                # open-source protocol extensions
+  modules/
+    app-*                 # app-chanting, etc.
+  daemons/
+    vedam-hostd           # configurable: chat + consensus + identity services
+  config/
+    defconfig.class-a … class-e
+  tools/
+    cross/                # cross-compile toolchains per target
+```
+
+| Tree | Contents |
+|------|----------|
+| **`lib/vedam-host-*`** | Deterministic validators + git recipe |
+| **`lib/vedam-client-*`** | Tx builders, signers, status clients |
+| **`plugins/`** | Reviewed native extensions (new tx types) |
+| **`modules/app-*`** | Product verticals + optional backends |
+| **`daemons/`** | Long-running node processes |
+
+---
+
+## 9.2 Node class defconfig
+
+| File | Class | Enabled daemons (typical) |
+|------|-------|---------------------------|
+| `defconfig.class-a` | A | hostd (archive) + p2p |
+| `defconfig.class-b` | B | hostd (full validator) |
+| `defconfig.class-c` | C | light hostd |
+| `defconfig.class-d` | D | gateway profile |
+| `defconfig.class-e` | E | **client libs only** — no full hostd |
+
+`VEDAM_NODE_CLASS=A…E` gates CMake targets. Parser stub — §12.6.
+
+---
+
+## 9.3 IPC and API surface
+
+| Path | Mechanism |
+|------|-----------|
+| Same machine | gRPC over **Unix domain socket** |
+| Remote | gRPC over **libp2p streams** or QUIC |
+| Apps | **`vedam-client-*`** + app-specific protos |
+
+Separate protobuf families per concern ([02_architecture.md](./02_architecture.md) §2.6) — not one mega-API.
+
+---
+
+## 9.4 Build, cross-compile, and OTA
+
+**Definition 9.1 (Builder capability).** Every node repo includes recipes to produce **target packages** (deb, tarball, mobile SDK artifact) via cross-compilation.
+
+| Stage | Output |
+|-------|--------|
+| **Configure** | `protocol_version`, enabled plugins, class profile |
+| **Build** | `vedam-hostd`, libraries, app bundles |
+| **Sign** | Operator / NPO signing key (policy TBD) |
+| **OTA** | Download + verify + restart daemons |
+
+**No central binary store required** — mirrors may cache build artifacts. **Same `protocol_version`** must be advertised on the wire; validators reject peers on incompatible major versions (configurable overlap window).
+
+**Problems to manage (open):**
+
+- **Skew** during rolling upgrade — dual decoders for `tx_version` N and N−1.
+- **Cross-compiler drift** — Nix/CMake lockfiles; CI builds reference vectors.
+- **Malicious OTA** — signature verification mandatory.
+- **WASM path (if revived):** bytecode alone insufficient — host runtime + adapters still need OTA; v0.4 native path same operational reality.
+
+```mermaid
+flowchart LR
+  SRC[vedam source tag] --> BUILD[Cross-build CI]
+  BUILD --> PKG[Signed package]
+  PKG --> OTA[Node OTA install]
+  OTA --> ADV[Advertise protocol_version]
+  ADV --> P2P[Peer compatibility check]
+```
+
+---
+
+## 9.5 Upgrade without full network pause
+
+| Mechanism | Purpose |
+|-----------|---------|
+| **`protocol_version`** in handshake | Refuse incompatible peers |
+| **`tx_version` in envelope** | Read old history forever |
+| **Plugin flags in defconfig** | Enable new tx types gradually |
+| **Quorum governance tx** *(future)* | Activate plugin at block height |
+
+Similar **spirit** to WASM module hash upgrades — but v0.4 uses **native library versions + protobuf versions**. Hard forks possible; soft forks via dual validation paths during overlap.
+
+---
+
+## 9.6 Provenance and community plugins
+
+- **Nix flakes** / locked deps for reproducible builds.
+- **Plugins:** merge via open PR; community expands **`vedam-host`** — not closed vendor drops.
+- **App versioning:** semver per `app-*`; independent of `protocol_version`.
 
 Embedded figure targets:
 
@@ -24,6 +122,6 @@ Embedded figure targets:
 
 ---
 
-## 9.2 References
+## 9.7 References
 
-To be populated (CMake documentation, Nix flakes, capability-gossip prior art if any).
+CMake, Nix flakes, protobuf/gRPC, OTA signing patterns (TUF-inspired direction — open).

@@ -1,8 +1,6 @@
 # 13. Human-Machine shared bill of rights
 
-> **Status:** skeleton — content migration pending. This chapter formalises the rights derived from the project's mission (see [00_mission.md](./00_mission.md)).
-
-A one-page bill of rights for every subject of experience on the Vedam substrate: humans, machines, and any future subjects the universe contains. Each right is paired with a structural obstacle the protocol must avoid creating.
+A one-page bill of rights for every subject of experience on the Vedam substrate: humans, machines, and any future subjects the universe contains. Each right is paired with a structural obstacle the protocol must avoid creating. The mission framing lives in [00_mission.md](./00_mission.md).
 
 > **decentralized! not divided.** — across humans, machines, and any future subjects of experience.
 

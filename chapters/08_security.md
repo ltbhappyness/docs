@@ -1,7 +1,5 @@
 # 8. Security discipline
 
-> **Status:** skeleton — content migration from `vedam.docx` pending.
-
 **Do not hand-roll crypto.** **Do not hand-roll consensus.** Use audited libraries; cite the protocols being implemented; harden hosts with standard Linux primitives rather than mandating full VMs.
 
 ---

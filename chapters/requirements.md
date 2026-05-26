@@ -1,8 +1,6 @@
 # Requirements traceability
 
-> **Status:** skeleton — Markdown conversion of the requirements spreadsheet is pending.
-
-For now, the authoritative requirements artifact is the JIRA-friendly spreadsheet:
+The authoritative requirements artifact is the JIRA-friendly spreadsheet:
 
 - [vedam_requirements.xlsx](../vedam_requirements.xlsx)
 
@@ -11,7 +9,6 @@ Sheets in that file (per pre-2026 lock-in):
 - **Requirements** — REQ IDs, statements, priority, status.
 - **Modules** — module list and per-module intent (kept in sync with `vedam/modules/*/README.md`).
 - **Glossary** — duplicated here in [14_glossary.md](./14_glossary.md) for browser-friendly reading.
-- **Decisions** — duplicated here in [decisions.md](./decisions.md).
 - **Open questions** — duplicated here in [12_open_questions.md](./12_open_questions.md).
 
 ---

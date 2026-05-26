@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./figures/vedam_logo.svg" alt="Vedam — five outer pentagons surrounding one centre pentagon in golden-ratio fivefold symmetry, with a V accent tracing two of the pentagram's natural diagonals" width="100%" />
+  <img src="./figures/vedam_logo.png" alt="Vedam logo — six black pentagons on white with V lines" width="320" />
 </p>
 
 <h1 align="center"><a href="./vedam.md">vedam</a></h1>

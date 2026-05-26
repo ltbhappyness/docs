@@ -1,50 +1,236 @@
 # 2. Architecture
 
-> **Status:** skeleton — content migration from `vedam.docx` pending.
+Vedam is a **decentralized application platform**: peer nodes that **finalize** agreed history, store **git-shaped repos**, and run **two execution tiers** — **native protocol validation** (messaging, identity, wallet) and **WASM dApp contracts** (tokens, DeFi-style rules, composability). Design **v0.4**.
 
-Stack overview, node classes A-E, and the layered reference architecture. Detailed module specifications live in their own pages — this page is the map.
-
----
-
-## 2.1 Reference architecture (placeholder)
-
-Embedded figure target:
-
-`![Figure 3: Layered reference architecture](../figures/fig03_layered_architecture.svg)`
-
-The figure needs professional rework — see [figures/README.md](../figures/README.md).
+Radicle / Heartwood are **reference precedents** for git-over-P2P replication — not the full scope of Vedam (identity, finality, chanting, future dApps). See [12_open_questions.md](./12_open_questions.md) §12.10 for license review before any code reuse.
 
 ---
 
-## 2.2 Node classes (placeholder)
+## 2.1 Layered node model
 
-| Class | Role | Defconfig file in `vedam/` |
-|-------|------|-----------------------------|
-| A | Archivist / S3E backbone | `config/defconfig.class-a` |
-| B | Full validator | `config/defconfig.class-b` |
-| C | Light / operator (default dev profile) | `config/defconfig.class-c` |
-| D | Edge / IoT gateway | `config/defconfig.class-d` |
-| E | Browser / thin client | `config/defconfig.class-e` |
+Each **Vedam node** runs one or more **native daemons** (Class A–D on Linux; Class E as thin client libraries + remote gRPC). Typical stack:
 
-Embedded figure target:
+```mermaid
+flowchart TB
+  subgraph apps [Applications — off protocol kernel]
+    FE[Mobile / web clients]
+    BE[App backends — gRPC]
+    NN[Future: inference backends — gRPC]
+  end
+
+  subgraph lib [Vedam libraries]
+    CL[vedam-client-* incl. wallet]
+    HL[vedam-host-* native validators]
+    WASM[WASM runtime — dApp contracts]
+  end
+
+  subgraph daemons [Node daemons]
+    GRPC[gRPC — chat / identity / contract]
+    SEQ[Per-repo queues]
+    VAL[Async quorum replay]
+    P2P[libp2p batch gossip]
+    GIT[libgit2 + pending WAL]
+  end
+
+  FE --> CL
+  BE --> GRPC
+  NN --> GRPC
+  CL --> GRPC
+  GRPC --> SEQ
+  SEQ --> HL
+  SEQ --> WASM
+  HL --> GIT
+  WASM --> GIT
+  VAL --> GIT
+  VAL --> P2P
+  GIT --> P2P
+```
+
+**Definition 2.1 (Node host).** Native code that accepts gRPC transactions, validates them against **finalized heads**, writes **one message per git commit** (MVP), proposes **`finality_digest`**, participates in **async quorum replay**, and replicates objects over libp2p. The host is **not** trusted alone — **⌈2n/3⌉ validators** must match the digest.
+
+**Definition 2.2 (Execution tiers).** **Tier A (native):** chanting, ACL, identity, built-in transfers — **`vedam-host-*`**. **Tier B (WASM):** deployable **dApp contracts** for trustless rules between strangers (tokens, AMMs, composable calls). See [06_execution.md](./06_execution.md) §6.0 layman guide.
+
+**Definition 2.3 (Application).** **`app-*`** products use **`vedam-client-*`** (wallet + tx builders) and optional backends. **Product logic** may be off-chain (AI, UI), **native tx**, or **WASM contract** depending on trust boundaries.
+
+---
+
+## 2.2 Repository topology (per node, per app)
+
+Every node that stores data runs a **local git server** (libgit2). Repos are **scoped by application** (`app_id`):
+
+| Kind | Scope | Content | Confidentiality |
+|------|-------|---------|-----------------|
+| **Chapter** | One subject / org | **Public** app content (may still be app-encrypted) | ACL + optional app crypto |
+| **DM** | Sender ↔ receiver (or self-vault) | **E2E ciphertext** | Participants only |
+| **Group** | Member set incl. sender | **E2E ciphertext** | Members only |
+| **Ledger** | Validators | **Metadata only** — tx envelope, `payload_hash`, refs, `finality_digest`, nullifiers | Protocol policy |
+
+Class **A/B** nodes **pin ciphertext** they are allowed to fetch — they **cannot read** DM/group plaintext without keys. Optional **GitHub mirror** is a **non-authoritative copy** of objects, not network truth.
+
+**Ledger git is durable on disk** after finality. A **pending WAL** (tmpfs + small disk journal) holds in-flight work until quorum ack or explicit rejection — see [03_storage.md](./03_storage.md).
+
+---
+
+## 2.3 Ingress: host selection and self-route rule
+
+Clients **never** sequence their own transactions on the **same node instance** that submits them.
+
+**Definition 2.4 (Designated host).** For each submit window:
+
+$$
+\text{host} = H(\text{sender\_chapter\_id}, \text{app\_id}, \text{repo\_id}, \text{epoch}) \bmod |V|
+$$
+
+where $V$ is the active validator set and **epoch** advances on timeout or schedule.
+
+| Event | Client / protocol action |
+|-------|---------------------------|
+| Host timeout | Retry same epoch, then **epoch + 1** → new host |
+| Host Byzantine | Validators reject bad proposal; **no finality**; client notified |
+| Host down | Failover via epoch bump |
+
+The designated host may validate **other users’** txs; it does not act as sequencer for **its operator’s own** submits (strict **no self-route**).
+
+---
+
+## 2.4 Ordering, queues, and one commit per message (MVP)
+
+**MVP:** **no batch squash** — one logical message → **one git commit** on the target repo. **Batching applies only to network gossip** (proposals and acks), not to collapsing commits.
+
+Multithreaded gRPC receivers feed a **per-(app_id, repo_id) mutex queue**:
+
+1. **Validate** signature, ACL, **nonce**, parent head alignment.
+2. **Reorder buffer** — **nonce is authoritative**; `client_time` / optional TEE fields are tie-breakers and fraud hints only.
+3. **Single-writer** append to git (parallel across **different** repos).
+4. Build **`finality_digest`** for the commit (see [05_consensus.md](./05_consensus.md)).
+5. **Async quorum replay** with **per-commit timeout**; gossip **batched** proposals/acks.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Pending: gRPC SubmitTx
+  Pending --> Validating: host accepts
+  Validating --> Rejected: sig / nonce / ACL fail
+  Validating --> Proposed: git commit + digest
+  Proposed --> AwaitingQuorum: gossip batch
+  AwaitingQuorum --> Finalized: quorum ack before timeout
+  AwaitingQuorum --> Rejected: timeout or quorum reject
+  AwaitingQuorum --> Proposed: retry new epoch host
+  Finalized --> [*]: WAL cleared notify client
+  Rejected --> [*]: WAL cleared notify client
+```
+
+Clients receive **explicit status** (`pending`, `finalized`, `rejected` + reason) — not silent failure.
+
+---
+
+## 2.5 Parallelism vs serial finality
+
+| Work class | Parallelism | Serialization |
+|------------|---------------|---------------|
+| Different **(app, chapter/DM/group) repos** | High | Independent nonce chains |
+| **gRPC ingress** threads | High | Per-repo queue lock |
+| **Quorum replay** | Async across commits | Each digest verified independently |
+| Same repo **HEAD / nonce** | None | Strict serial |
+
+```mermaid
+flowchart LR
+  subgraph parallel [Parallel ingest]
+    R1[Repo A tx]
+    R2[Repo B tx]
+    R3[Repo C tx]
+  end
+
+  subgraph perRepo [Per repo serial]
+    Q1[Queue + 1 commit/msg]
+    Q2[Queue + 1 commit/msg]
+  end
+
+  subgraph finality [Async finality]
+    D1[digest₁]
+    D2[digest₂]
+    ACK[Quorum ack batch or individual]
+  end
+
+  R1 --> Q1 --> D1 --> ACK
+  R2 --> Q2 --> D2 --> ACK
+  R3 --> Q2
+```
+
+---
+
+## 2.6 gRPC / protobuf library families
+
+Vedam ships **versioned protobuf schemas + client/host libraries** — not prebuilt node binaries. Families (separate `.proto` + daemons where needed):
+
+| Family | Purpose | MVP |
+|--------|---------|-----|
+| **`vedam-tx`** | Canonical transaction envelope | Required |
+| **`vedam-consensus`** | Proposals, acks, rejections, epoch control | Required |
+| **`vedam-identity`** | Chapter registration, PoP hooks, ACL | Required |
+| **`vedam-chat`** | Chanting submit / status / fetch | Required for app-chanting |
+| **`vedam-infer`** *(Phase 2)* | NN session create/run — **app backend API**, not ledger VM | Optional dApp |
+
+App authors reuse **client libraries**; validators link **host validators**. **Backward-compatible decoders** read old `tx_version` history.
+
+Future **AI hive-mind** workloads: **gRPC to app-owned inference backends** (GPU/XPU); ledger stores **hashes of inputs/outputs** when an app chooses to anchor — not protocol-core tensor ops at MVP.
+
+---
+
+## 2.7 Node classes
+
+| Class | Role | Storage | Defconfig |
+|-------|------|---------|-----------|
+| **A** | Archivist | Pin allowed repos; promisor | `defconfig.class-a` |
+| **B** | Full validator | Validate + finalize + execute | `defconfig.class-b` |
+| **C** | Light operator | Partial clone | `defconfig.class-c` |
+| **D** | IoT gateway | Recent refs; L3 anchors | `defconfig.class-d` |
+| **E** | Phone / browser client | No full git — `vedam-client-*` + gRPC to B/A | `defconfig.class-e` |
+
+No **fee / token** at MVP — see [12_open_questions.md](./12_open_questions.md) §12.1 for archive economics.
+
+Embedded figure targets (rework pending):
 
 `![Figure 2: Node classes](../figures/fig02_node_classes.svg)`
 
----
-
-## 2.3 Sections to fill (placeholders)
-
-- 2.3.1 Topology: S3E hub set + peers (Figure 1).
-- 2.3.2 Layered view: DApps, External API (gRPC), Internal services, Consensus, Storage, Network, OS.
-- 2.3.3 Module dependency graph — link to [09_modularity_build.md](./09_modularity_build.md).
-- 2.3.4 Data flow (chanting example) (Figure 7).
+`![Figure 3: Layered reference architecture](../figures/fig03_layered_architecture.svg)`
 
 ---
 
-## 2.4 Cross-references
+## 2.8 Chanting data path (reference app)
 
-- [03_storage.md](./03_storage.md) — storage layer detail.
-- [04_network.md](./04_network.md) — network layer detail.
-- [05_consensus.md](./05_consensus.md) — consensus detail.
-- [06_execution.md](./06_execution.md) — vbc execution detail.
-- [vedam/AGENTS.md](https://github.com/ltbhappyness/vedam/blob/master/vedam/AGENTS.md) — implementation handbook.
+1. Sender encrypts payload **client-side** (Double Ratchet / epoch keys — [07_identity.md](./07_identity.md)).
+2. Client calls **`vedam-chat`** gRPC on **remote designated host** (never self-route).
+3. Host writes **one git commit** (ciphertext blob) on DM/group repo; **`payload_hash`** in tx envelope.
+4. **`finality_digest`** finalized by async quorum; ledger git stores digest + ref metadata.
+5. libp2p **batch gossip** replicates objects to A/B peers.
+
+```mermaid
+sequenceDiagram
+  participant C as Chanting client
+  participant H as Designated host
+  participant W as Pending WAL
+  participant G as Message git repo
+  participant V as Validator peers
+  participant L as Ledger git
+
+  C->>H: gRPC SubmitMessage(ciphertext tx)
+  H->>W: pending record
+  H->>G: one commit (E2E blob)
+  H->>V: gossip batch proposal(digest, meta)
+  V->>V: quorum replay verify digest
+  V-->>H: ack batch or individual reject
+  H->>L: finalize metadata + digest
+  H->>W: clear pending
+  H-->>C: Finalized or Rejected
+```
+
+---
+
+## 2.9 Cross-references
+
+- [03_storage.md](./03_storage.md) — WAL, object model, canonical commit recipe.
+- [04_network.md](./04_network.md) — libp2p, batch gossip framing.
+- [05_consensus.md](./05_consensus.md) — `finality_digest`, async quorum, timeouts.
+- [06_execution.md](./06_execution.md) — Tier A native + Tier B WASM dApp contracts.
+- [07_identity.md](./07_identity.md) — chapter / ACL / E2E.
+- [09_modularity_build.md](./09_modularity_build.md) — OTA build, cross-compile, versioning.

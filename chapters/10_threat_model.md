@@ -1,7 +1,5 @@
 # 10. Threat model
 
-> **Status:** skeleton — content migration from `vedam.docx` pending.
-
 Adversaries Vedam must withstand to keep the **four conditions** (body / mind / bonds / action) unblocked for every subject. Threats are listed against the four-condition framing, not only against the technical layers.
 
 ---

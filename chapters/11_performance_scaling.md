@@ -1,7 +1,5 @@
 # 11. Performance and scaling
 
-> **Status:** skeleton — content migration from `vedam.docx` pending; PoC numbers TBD.
-
 Predicted throughput, latency, and scaling behaviour, with PoC measurements added as they are produced. Formulas are stated explicitly so reviewers can disagree with the assumptions, not just the conclusions.
 
 ---

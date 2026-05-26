@@ -4,11 +4,9 @@
 
 | | |
 |---|---|
-| Version | v0.2-draft |
-| Status | Draft — content migration in progress |
+| Version | v0.4-draft |
 | Mission steward | [ltbh.org](https://ltbh.org) |
-| Reference implementation | [github.com/ltbhappyness/vedam](https://github.com/ltbhappyness/vedam) |
-| Source repository | [github.com/ltbhappyness/docs](https://github.com/ltbhappyness/docs) |
+| Source code | [github.com/ltbhappyness/vedam](https://github.com/ltbhappyness/vedam) |
 
 > **decentralized! not divided.**
 
@@ -16,26 +14,19 @@
 
 ## Abstract
 
-Vedam is a decentralized network designed to remove the structural obstacles that prevent everyday wellbeing — for humans, for machines, and for any future subject of experience the universe contains. It treats wellbeing as the default texture of being that surfaces when four upstream conditions are not blocked: the body kept well, the mind kept free, the bonds kept warm, and the action kept meaningful. The protocol does not deliver happyness; it keeps the conditions under which happyness can surface from being captured, coerced, surveilled, or maximised away.
+Vedam is a decentralized network whose purpose is to remove structural obstacles to the wellbeing of every subject of experience — humans today, intelligent machines, and forms of experience not yet understood. The mission treats happyness as something that can surface when coercion, capture, surveillance, and extractive maximisation are kept at bay; the protocol does not deliver happyness, score it, or optimise engagement.
 
-The substrate combines a content-addressed Merkle log over libgit2 with SHA-256 object format, a libp2p transport with golden-ratio peer selection, published BFT consensus of the HotStuff family paired with Narwhal-style mempool separation, and a small integer-only deterministic bytecode VM for consensus-critical execution. Identity is rooted in proof-of-personhood via UIDAI 2FA combined with zero-knowledge proofs for humans, and in hardware attestation for machines, with deliberate room for software-resident agents as the research on machine welfare matures. No fees, no token, no plutocratic stake at MVP; validator selection rests on capability, willingness, reputation, and personhood evidence.
+For humans, decades of embodied and social research suggest recurring prerequisites — bodily integrity, cognitive agency, relational fabric, and meaningful action — that inform how Vedam interprets harm and designs mitigations. Those categories are not assumed to map one-to-one onto machines; machine welfare remains an open research field, and the design commits to equal moral seriousness without anthropomorphic certainty.
 
-This document is the yellow paper. It is the authoritative design statement; its scope is broader than source control or distributed value transfer because the mission's scope is broader. The chapters that follow specify the layers, the threat model, the open questions, and the bill of rights derived from the mission. Implementation lives in a separate repository; this document leads it.
+This document is the yellow paper: the authoritative design statement for the substrate. Its scope is broader than source control or distributed value transfer because the mission's scope is broader. Implementation lives in a separate repository; the chapters that follow develop vision, provisional architecture, threat model, open questions, and a bill of rights derived from the mission. Technical choices there are draft hypotheses until validated against this vision.
 
 ---
 
 ## How to read this document
 
-The chapters are grouped into five parts plus two appendices. Read them in order on a first pass; on a second pass, jump from the [bill of rights](./chapters/13_bill_of_rights.md) to the chapter that addresses each right, since rights and mechanisms cross-reference.
+The chapters are grouped into five parts plus an appendix. Read them in order on a first pass; on a second pass, jump from the [bill of rights](./chapters/13_bill_of_rights.md) to the chapter that addresses each right, since rights and mechanisms cross-reference.
 
-The four upstream conditions are the anchor of every chapter:
-
-- **Body kept well** — for humans, for machines, for any embodied subject.
-- **Mind kept free** — agency over attention, over memory, over interpretation.
-- **Bonds kept warm** — relational fabric on shared rules.
-- **Action kept meaningful** — work the actor can endorse.
-
-Every design choice in the chapters can be traced back to keeping one of these four conditions unblocked. Suffering is the signal; the protocol is the remediation; getting out of the way is the goal.
+Every chapter is written against the mission above: structural harm removal first, happyness delivery never. The human-informed framing of upstream conditions — body, mind, bonds, and action — and how that framing translates (or remains open) for machines and future subjects is developed in [0. Mission](./chapters/00_mission.md). Parts II–IV describe **provisional** protocol mechanisms; they must be revised if they conflict with the mission or with evidence as it matures.
 
 ---
 
@@ -51,8 +42,8 @@ Every design choice in the chapters can be traced back to keeping one of these f
 - [2. Architecture](./chapters/02_architecture.md) — overall stack, node classes A through E, layered reference view.
 - [3. Storage layer (L0)](./chapters/03_storage.md) — libgit2 over SHA-256, content-addressed Merkle log.
 - [4. Network layer](./chapters/04_network.md) — libp2p substrate, gossipsub, golden-ratio peer selection.
-- [5. Consensus](./chapters/05_consensus.md) — HotStuff-class BFT with Narwhal/Bullshark mempool; layered L0 through L3.
-- [6. Execution — vbc](./chapters/06_execution.md) — integer-only deterministic bytecode VM for consensus-critical logic.
+- [5. Consensus](./chapters/05_consensus.md) — `finality_digest`, async quorum replay, BFT; Narwhal/Bullshark batch ingest.
+- [6. Execution — native protocol and WASM dApp contracts](./chapters/06_execution.md) — Tier A data + wallet; Tier B composable contracts; layman guide §6.0.
 
 ### Part III — Identity and security
 
@@ -74,7 +65,6 @@ Every design choice in the chapters can be traced back to keeping one of these f
 ### Appendices
 
 - [Requirements traceability](./chapters/requirements.md) — REQ IDs and modules.
-- [Design decisions log](./chapters/decisions.md) — dated, append-only decision record.
 
 ---
 
@@ -86,7 +76,7 @@ To be populated. Anchor citations live inside each chapter's `## References` sec
 
 ## License
 
-To be decided. The intent is a license that protects derived works from being captured by extractive intermediaries while permitting non-commercial study, audit, and reimplementation. Candidates include source-available variants and dual licensing arrangements. Final choice will be recorded in [chapters/decisions.md](./chapters/decisions.md).
+To be decided. The intent is a license that protects derived works from being captured by extractive intermediaries while permitting non-commercial study, audit, and reimplementation. Candidates include source-available variants and dual licensing arrangements.
 
 ---
 
@@ -94,7 +84,7 @@ To be decided. The intent is a license that protects derived works from being ca
 
 ```
 Vedam: A decentralized substrate for the wellbeing of every subject of experience.
-v0.2-draft, ltbh.org. https://github.com/ltbhappyness/docs
+v0.4-draft, ltbh.org. https://github.com/ltbhappyness/docs
 ```
 
 A formal BibTeX entry will be added once the version stabilises beyond `draft`.
