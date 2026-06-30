@@ -60,14 +60,14 @@ Every node that stores data runs a **local git server** (libgit2). Repos are **s
 
 | Kind | Scope | Content | Confidentiality |
 |------|-------|---------|-----------------|
-| **Chapter** | One subject / org | **Public** app content (may still be app-encrypted) | ACL + optional app crypto |
-| **DM** | Sender ↔ receiver (or self-vault) | **E2E ciphertext** | Participants only |
-| **Group** | Member set incl. sender | **E2E ciphertext** | Members only |
-| **Ledger** | Validators | **Metadata only** — tx envelope, `payload_hash`, refs, `finality_digest`, nullifiers | Protocol policy |
+| **Chapter** | One subject / org | **Public** app content (encrypted RDF when private) | Capabilities + optional app crypto |
+| **DM** | Sender ↔ receiver (or self-vault) | **E2E ciphertext** (encrypted RDF) | Participants only |
+| **Group** | Member set incl. sender | **E2E ciphertext** (encrypted RDF) | Members only |
+| **Ledger** | Validators | **Metadata only** — tx envelope, `payload_hash`, refs, `finality_digest`, nullifier-commitments, identity registry | Protocol policy |
 
-Class **A/B** nodes **pin ciphertext** they are allowed to fetch — they **cannot read** DM/group plaintext without keys. Optional **GitHub mirror** is a **non-authoritative copy** of objects, not network truth.
+Content bodies use **RDF** as the canonical model ([15. Data model and interoperability](./15_data_model.md)); private bodies are encrypted at rest. Repos may be backed by any **storage adapter** — local disk, a peer node, or a ciphertext-only cloud tier (Google Drive, OneDrive/SharePoint, GitHub, GitLab) — see [3. Storage layer (L0)](./03_storage.md). Class **A/B** nodes **pin ciphertext** they are allowed to fetch — they **cannot read** DM/group plaintext without keys. Any mirror is a **non-authoritative ciphertext copy**, not network truth.
 
-**Ledger git is durable on disk** after finality. A **pending WAL** (tmpfs + small disk journal) holds in-flight work until quorum ack or explicit rejection — see [03_storage.md](./03_storage.md).
+**Finalized ledger git is durable on disk** on enough independent Class A/B peers after finality; the **live** ledger and a **pending WAL** (tmpfs + small disk journal) hold in-flight work until quorum ack or explicit rejection — see [3. Storage layer (L0)](./03_storage.md).
 
 ---
 
@@ -198,7 +198,7 @@ Embedded figure targets (rework pending):
 
 ## 2.8 Chanting data path (reference app)
 
-1. Sender encrypts payload **client-side** (Double Ratchet / epoch keys — [07_identity.md](./07_identity.md)).
+1. Sender builds an **RDF body**, then encrypts it **client-side** (Double Ratchet / epoch keys — [7. Identity and privacy](./07_identity.md)).
 2. Client calls **`vedam-chat`** gRPC on **remote designated host** (never self-route).
 3. Host writes **one git commit** (ciphertext blob) on DM/group repo; **`payload_hash`** in tx envelope.
 4. **`finality_digest`** finalized by async quorum; ledger git stores digest + ref metadata.
@@ -226,11 +226,27 @@ sequenceDiagram
 
 ---
 
-## 2.9 Cross-references
+## 2.9 Edge app and the on-device backend
 
-- [03_storage.md](./03_storage.md) — WAL, object model, canonical commit recipe.
-- [04_network.md](./04_network.md) — libp2p, batch gossip framing.
-- [05_consensus.md](./05_consensus.md) — `finality_digest`, async quorum, timeouts.
-- [06_execution.md](./06_execution.md) — Tier A native + Tier B WASM dApp contracts.
-- [07_identity.md](./07_identity.md) — chapter / ACL / E2E.
-- [09_modularity_build.md](./09_modularity_build.md) — OTA build, cross-compile, versioning.
+Every device that participates runs a small **Vedam backend** (a node daemon plus libraries); the **edge app** is the subject-facing UI that talks to its local backend over gRPC.
+
+| Component | Runs where | Role |
+|-----------|------------|------|
+| **Edge app** | Subject's device (mobile / desktop / web) | UI; builds RDF content; calls local backend |
+| **Local backend** | Same device (or a chosen peer device) | Holds the subject's keys and storage credentials; encrypt/decrypt; ACL daemon; storage adapter; libp2p |
+| **Validator / archivist** | Class A/B peers | Finality, replication, durability |
+
+The **access-control daemon** and the **RDF encode/encrypt pipeline** are co-located with the local backend, so private keys and decryption never leave the subject's device. A subject without their own always-on device may delegate the backend role to a **chosen peer device** under the same own-credentials invariant ([3. Storage layer (L0)](./03_storage.md) §3.5). Installation, packaging, and infrastructure are detailed in [16. Deployment and operations](./16_deployment.md).
+
+---
+
+## 2.10 Cross-references
+
+- [3. Storage layer (L0)](./03_storage.md) — WAL, object model, adapters, RDF-at-rest, retrieval flow.
+- [4. Network layer](./04_network.md) — libp2p, batch gossip framing.
+- [5. Consensus](./05_consensus.md) — `finality_digest`, async quorum, timeouts, tiered finality.
+- [6. Execution](./06_execution.md) — Tier A native + Tier B WASM dApp contracts.
+- [7. Identity and privacy](./07_identity.md) — nullifier, root subject, pseudonyms, capabilities, E2E.
+- [15. Data model and interoperability](./15_data_model.md) — RDF/HDT, vocabularies, SOLID compatibility.
+- [16. Deployment and operations](./16_deployment.md) — edge app, install, infra, CI/CD, upgrade.
+- [9. Modularity and build](./09_modularity_build.md) — OTA build, cross-compile, versioning.

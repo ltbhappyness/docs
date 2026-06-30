@@ -10,13 +10,21 @@ Project-internal terms, kept in one place to avoid drift across pages.
 
 **Ananda** — bliss; in *sat-chit-ananda* (existence-awareness-bliss), the nature of the Self in Vedanta. The project's name *Vedam* points here.
 
+## A
+
+**App-scoped pseudonym** — a per-application identifier derived from the root Subject, mutually unlinkable across apps; cross-app linkage is opt-in and ZK-provable by the subject. See [07_identity.md](./07_identity.md).
+
 ## C
 
-**Chapter** — a per-subject, single-writer, signed log. The unit of identity and authorship on Vedam. See [07_identity.md](./07_identity.md).
+**Capability (UCAN-style)** — a signed, delegable, revocable grant ("holder of pseudonym P may append to resource R until T"), verified at the owner's node with no central ACL server. See [07_identity.md](./07_identity.md).
 
-**Class A / B / C / D / E** — node classes (archivist / full / light / IoT / browser). See [02_architecture.md](./02_architecture.md).
+**CEK / content-key envelope** — a per-resource content key, wrapped (encrypted) once per authorized recipient's pseudonym key; enables decryption without a central key server. See [03_storage.md](./03_storage.md).
 
-**CRAB** — Cryptographic erasure via key destruction. A technique for honouring the right-to-be-forgotten on content-addressed logs without rewriting history. See [08_security.md](./08_security.md) and [12_open_questions.md](./12_open_questions.md).
+**Chapter** — a per-subject, single-writer, signed git repo; a subject's identity container and content namespace (may hold public, private, and group data side by side). See [07_identity.md](./07_identity.md).
+
+**Class A / B / C / D / E** — node classes (archivist / full / light / IoT-gateway / client). See [02_architecture.md](./02_architecture.md).
+
+**CRAB** — Cryptographic erasure via key destruction. Honours the right-to-be-forgotten on content-addressed logs without rewriting history. See [08_security.md](./08_security.md) and [12_open_questions.md](./12_open_questions.md).
 
 ## D
 
@@ -30,6 +38,8 @@ Project-internal terms, kept in one place to avoid drift across pages.
 
 ## H
 
+**HDT** — Header-Dictionary-Triples, a compact binary RDF serialization used for large, static graphs. See [15_data_model.md](./15_data_model.md).
+
 **HotStuff** — the BFT consensus protocol family Vedam inherits; chosen for $O(n)$ communication and linear view-change. See [05_consensus.md](./05_consensus.md).
 
 ## L
@@ -40,15 +50,27 @@ Project-internal terms, kept in one place to avoid drift across pages.
 
 **Narwhal / Bullshark** — DAG-based mempool + BFT ordering of batch metadata; complements **per-commit async quorum** in v0.4. See [05_consensus.md](./05_consensus.md).
 
+**Nullifier (personhood)** — a one-time zero-knowledge value derived from a valid Aadhaar credential; same per human, reveals nothing about the number. The **uniqueness gate** for registration — **not** a usable identifier. See [07_identity.md](./07_identity.md).
+
 ## P
 
 **PERMA** — Seligman's positive psychology model: Positive emotion, Engagement, Relationships, Meaning, Accomplishment. One of several frameworks a subject may opt into for private self-reflection. See [13_bill_of_rights.md](./13_bill_of_rights.md) Right 7.
 
 **phi / $\varphi$** — golden ratio $\varphi = (1 + \sqrt{5})/2 \approx 1.618$. Used throughout Vedam — Venus / pentagon symbology, $\mathbb{Z}[\varphi]$ integer peer selection. See [04_network.md](./04_network.md) and [00_mission.md](./00_mission.md).
 
-**Proof-of-Personhood (PoP)** — non-plutocratic validator selection input combining capability + willingness + reputation + personhood evidence. See [05_consensus.md](./05_consensus.md) and [07_identity.md](./07_identity.md).
+**Proof-of-Personhood (PoP)** — for humans, a one-time Anon-Aadhaar-style ZK proof over the offline signed Aadhaar QR, emitting a nullifier; enforces one account per human without storing the Aadhaar number. Also a non-plutocratic validator-selection input. See [07_identity.md](./07_identity.md) and [05_consensus.md](./05_consensus.md).
+
+## R
+
+**RDF** — Resource Description Framework; the triple-based, app-independent content model Vedam uses for payloads. See [15_data_model.md](./15_data_model.md).
+
+**Root Subject ID** — a subject's single accountable, pseudonymous DID; device keys and app pseudonyms derive from it; gated by a personhood nullifier at registration. See [07_identity.md](./07_identity.md).
 
 ## S
+
+**SIOPv2** — Self-Issued OpenID Provider v2; the subject self-signs login assertions (no central or federated issuer), resolved via the on-chain identity registry. See [07_identity.md](./07_identity.md).
+
+**Storage adapter** — abstraction over where objects physically live (local / peer / cloud); cloud adapters hold ciphertext only and are never the finality authority. See [03_storage.md](./03_storage.md).
 
 **S3E** — Class A archivist / service-backbone node. Many peers at the same layer; not a single coordinator. Historical "brain" metaphor in pre-2026 docs; the networking-layer meaning is Class A unless explicitly disambiguated.
 
@@ -59,6 +81,8 @@ Project-internal terms, kept in one place to avoid drift across pages.
 **vedam-client-*** — protobuf + library for apps: build/sign `vedam-tx`, call chat/identity gRPC.
 
 **vedam-host-*** — validator-side libraries: verify txs, canonical git recipe, compute `finality_digest`.
+
+**vedam-noded** — the configurable node daemon (storage + consensus + identity + chat), profiled per class; earlier drafts named it `vedam-hostd`. See [16_deployment.md](./16_deployment.md).
 
 **vedam-tx** — canonical versioned transaction envelope protobuf. See [06_execution.md](./06_execution.md).
 

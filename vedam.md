@@ -40,14 +40,15 @@ Every chapter is written against the mission above: structural harm removal firs
 ### Part II — Architecture
 
 - [2. Architecture](./chapters/02_architecture.md) — overall stack, node classes A through E, layered reference view.
-- [3. Storage layer (L0)](./chapters/03_storage.md) — libgit2 over SHA-256, content-addressed Merkle log.
+- [3. Storage layer (L0)](./chapters/03_storage.md) — libgit2 over SHA-256, content-addressed Merkle log, encrypted-RDF at rest, storage adapters, retrieval flow.
 - [4. Network layer](./chapters/04_network.md) — libp2p substrate, gossipsub, golden-ratio peer selection.
 - [5. Consensus](./chapters/05_consensus.md) — `finality_digest`, async quorum replay, BFT; Narwhal/Bullshark batch ingest.
 - [6. Execution — native protocol and WASM dApp contracts](./chapters/06_execution.md) — Tier A data + wallet; Tier B composable contracts; layman guide §6.0.
+- [15. Data model and interoperability](./chapters/15_data_model.md) — RDF/HDT content model, vocabularies, encode + encrypt pipeline, SOLID compatibility.
 
 ### Part III — Identity and security
 
-- [7. Identity and privacy](./chapters/07_identity.md) — UIDAI plus zero-knowledge for humans; attestation for machines.
+- [7. Identity and privacy](./chapters/07_identity.md) — personhood nullifier, root Subject, device keys, unlinkable app pseudonyms, capabilities, SIOPv2; attestation for machines.
 - [8. Security discipline](./chapters/08_security.md) — crypto and consensus library policy, Linux hardening, post-quantum posture.
 
 ### Part IV — Engineering
@@ -55,6 +56,7 @@ Every chapter is written against the mission above: structural harm removal firs
 - [9. Modularity and build](./chapters/09_modularity_build.md) — CMake defconfig per class, Nix flakes, IPC.
 - [10. Threat model](./chapters/10_threat_model.md) — adversaries against the four conditions and their mitigations.
 - [11. Performance and scaling](./chapters/11_performance_scaling.md) — cost model, predicted throughput, scaling assumptions.
+- [16. Deployment and operations](./chapters/16_deployment.md) — edge app, install by node class, build/package, protocol surface, upgrade, CI.
 
 ### Part V — Governance and reference
 

@@ -80,12 +80,29 @@ Default $T_{\text{commit}}$, batch ack sizes, and epoch length for host failover
 
 Which client classes must supply `tee_attestation` vs optional `client_time` only. Browsers (Class E) likely **cannot** require TEE. Parent: [06_execution.md](./06_execution.md).
 
+## 12.21 Software-resident agent uniqueness anchor
+
+Humans anchor uniqueness in a personhood nullifier and machines in hardware attestation; **software-resident agents have no hardware anchor**. How to admit them as subjects without opening a Sybil hole is open. Parent: [07_identity.md](./07_identity.md), [13_bill_of_rights.md](./13_bill_of_rights.md).
+
+## 12.22 Identity primitive specifications
+
+Concrete specs for the Anon-Aadhaar-style **offline-QR verifier**, the **SIOPv2** assertion binding, **UCAN** capability profile, and the **content-key-envelope** KDF / wrap scheme. Parent: [07_identity.md](./07_identity.md), [03_storage.md](./03_storage.md).
+
+## 12.23 Tiered-finality consistency pass
+
+The consensus chapter still describes a single BFT path; the data-sovereignty pivot introduced **tiered finality** (self → participant/DM → full BFT for public commitments, DMs anchored on request). Reconcile [05_consensus.md](./05_consensus.md) with [07_identity.md](./07_identity.md) §7.8 and [15_data_model.md](./15_data_model.md). Parent: [05_consensus.md](./05_consensus.md).
+
+## 12.24 Non-India personhood verifiers
+
+Pluggable personhood schemes for non-India deployments registering against the same one-account rule, without letting one human register twice across schemes. Parent: [07_identity.md](./07_identity.md).
+
 ## 12.16 Documentation backlog
 
 Do not use per-chapter status blockquotes in the public corpus. When a chapter is finished, publish it without a banner. While work remains, track it here (or promote resolved items into the parent chapter and delete the row).
 
-**Done:** [00 Mission](./00_mission.md), [01 Motivation](./01_motivation.md). **v0.4 draft in place (review tomorrow):** [02 Architecture](./02_architecture.md) through [06 Execution](./06_execution.md), [04 Network](./04_network.md), [09 Modularity](./09_modularity_build.md), partial [07 Identity](./07_identity.md).
-- [ ] **[08 Security](./08_security.md)** — crypto policy, hardening, verification scope
+**Done:** [00 Mission](./00_mission.md), [01 Motivation](./01_motivation.md). **v0.4 draft in place:** [02 Architecture](./02_architecture.md) through [06 Execution](./06_execution.md), [04 Network](./04_network.md), [09 Modularity](./09_modularity_build.md). **Reworked for the data-sovereignty / identity pivot (provisional, pending review):** [03 Storage](./03_storage.md), [07 Identity](./07_identity.md), [15 Data model](./15_data_model.md), [16 Deployment](./16_deployment.md).
+- [ ] **[05 Consensus](./05_consensus.md)** — reconcile with tiered finality (§12.23)
+- [ ] **[08 Security](./08_security.md)** — crypto policy, hardening, verification scope; identity-primitive review (§12.22)
 - [ ] **[10 Threat model](./10_threat_model.md)** — adversaries vs four conditions
 - [ ] **[11 Performance](./11_performance_scaling.md)** — benchmarks and PoC numbers
 - [ ] **[13 Bill of rights](./13_bill_of_rights.md)** — formalise rights from [00_mission.md](./00_mission.md)

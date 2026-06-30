@@ -59,7 +59,7 @@ Most of Vedam is **pure data**: encrypted messages, public chapter files, hashes
 
 | Use case | Mechanism |
 |----------|-----------|
-| **Chanting / DM / group** | E2E ciphertext in message git; ledger = hash + ref |
+| **Chanting / DM / group** | E2E ciphertext (encrypted RDF) in message git; ledger = hash + ref |
 | **Public chapter content** | Blob in repo; ACL via identity |
 | **Wallet sign / verify** | **`vedam-client-crypto`** + **`vedam-host-crypto`** |
 | **Simple transfers** | Native **`Transfer`** tx if protocol defines balances |

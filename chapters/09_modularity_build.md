@@ -11,22 +11,26 @@ vedam/
   proto/
     vedam-tx/
     vedam-consensus/
-    vedam-identity/
+    vedam-identity/       # registration, nullifier commitment, registry, capabilities
+    vedam-storage/        # Locate / Fetch / RequestAccess (wrapped CEK), object packs
     vedam-chat/
     vedam-infer/          # Phase 2 — app NN API, not consensus core
   lib/
     vedam-client-*        # linked by mobile/web/apps
     vedam-host-*          # linked by validator daemons
+    vedam-data-*          # RDF/HDT encode + content-key envelope pipeline
   plugins/                # open-source protocol extensions
   modules/
     app-*                 # app-chanting, etc.
   daemons/
-    vedam-hostd           # configurable: chat + consensus + identity services
+    vedam-noded           # configurable node daemon: storage + consensus + identity + chat
   config/
     defconfig.class-a … class-e
   tools/
     cross/                # cross-compile toolchains per target
 ```
+
+The configurable node daemon is **`vedam-noded`** (earlier drafts named it `vedam-hostd`); a single binary, profiled per class.
 
 | Tree | Contents |
 |------|----------|
@@ -42,11 +46,11 @@ vedam/
 
 | File | Class | Enabled daemons (typical) |
 |------|-------|---------------------------|
-| `defconfig.class-a` | A | hostd (archive) + p2p |
-| `defconfig.class-b` | B | hostd (full validator) |
-| `defconfig.class-c` | C | light hostd |
-| `defconfig.class-d` | D | gateway profile |
-| `defconfig.class-e` | E | **client libs only** — no full hostd |
+| `defconfig.class-a` | A | noded (archive) + p2p |
+| `defconfig.class-b` | B | noded (full validator) |
+| `defconfig.class-c` | C | light noded |
+| `defconfig.class-d` | D | gateway profile (optional SOLID/LDP gateway) |
+| `defconfig.class-e` | E | **client libs only** — no full noded |
 
 `VEDAM_NODE_CLASS=A…E` gates CMake targets. Parser stub — §12.6.
 
@@ -71,7 +75,7 @@ Separate protobuf families per concern ([02_architecture.md](./02_architecture.m
 | Stage | Output |
 |-------|--------|
 | **Configure** | `protocol_version`, enabled plugins, class profile |
-| **Build** | `vedam-hostd`, libraries, app bundles |
+| **Build** | `vedam-noded`, libraries, app bundles |
 | **Sign** | Operator / NPO signing key (policy TBD) |
 | **OTA** | Download + verify + restart daemons |
 
