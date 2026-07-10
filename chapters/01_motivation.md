@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Motivation"
+description: "the structural problems Vedam exists to address."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 1. Motivation
 
 Centralised digital infrastructure has become extraordinarily capable — and extraordinarily extractive. Vedam exists because the obstacles to [Happyness — what the word means here](./00_mission.md#03-happyness--what-the-word-means-here) are often **structural**: built into who holds data, who shapes attention, who pays fees, and who sets the rules for humans **and** machines. This chapter states those obstacles in plain terms and maps them to the [four-condition thesis](./00_mission.md#01-the-four-condition-thesis). It does not specify protocol bytes; that work lives in Parts II–IV ([Architecture](./02_architecture.md) onward).

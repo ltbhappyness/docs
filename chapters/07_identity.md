@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Identity and privacy"
+description: "personhood nullifier, root Subject, device keys, unlinkable app pseudonyms, capabilities, SIOPv2; attestation for machines."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 7. Identity and privacy
 
 Vedam identity is **self-sovereign**: a subject controls keys, not a provider account. The design adopts the data-sovereignty goals of decentralized Web3 (subject-owned data, decoupled from apps) while adding what those systems omit — **proof-of-personhood without surveillance**, machines as first-class subjects, and unlinkable activity across apps. Design **v0.4**.

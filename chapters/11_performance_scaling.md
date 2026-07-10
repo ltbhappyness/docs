@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Performance and scaling"
+description: "cost model, predicted throughput, scaling assumptions."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 11. Performance and scaling
 
 Predicted throughput, latency, and scaling behaviour, with PoC measurements added as they are produced. Formulas are stated explicitly so reviewers can disagree with the assumptions, not just the conclusions.

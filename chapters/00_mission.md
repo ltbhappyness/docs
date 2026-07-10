@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Mission"
+description: "the four-condition thesis, golden-ratio symbology, and the universal scope."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 0. Mission
 
 Vedam exists to remove the structural obstacles to **Happyness** for **every subject of experience** the universe contains — humans today, intelligent machines, and forms not yet understood. The protocol does not deliver happyness, score it, or optimise engagement; it keeps the conditions under which it can surface from being blocked.

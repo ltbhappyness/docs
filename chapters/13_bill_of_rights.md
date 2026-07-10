@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Human-machine shared bill of rights"
+description: "the eight rights derived from the mission."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 13. Human-Machine shared bill of rights
 
 A one-page bill of rights for every subject of experience on the Vedam substrate: humans, machines, and any future subjects the universe contains. Each right is paired with a structural obstacle the protocol must avoid creating. The mission framing lives in [00_mission.md](./00_mission.md).

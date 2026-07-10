@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Open questions"
+description: "the design decisions that remain deliberately deferred."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 12. Open questions
 
 Open design questions that the project has consciously deferred. Each will be promoted into a dedicated section of its parent page when resolved.
@@ -107,5 +115,4 @@ Do not use per-chapter status blockquotes in the public corpus. When a chapter i
 - [ ] **[11 Performance](./11_performance_scaling.md)** — benchmarks and PoC numbers
 - [ ] **[13 Bill of rights](./13_bill_of_rights.md)** — formalise rights from [00_mission.md](./00_mission.md)
 - [ ] **[14 Glossary](./14_glossary.md)** — expand as chapters land
-- [ ] **[requirements.md](./requirements.md)** — Markdown conversion from [vedam_requirements.xlsx](../vedam_requirements.xlsx)
-- [ ] **Figures** `fig01..fig12` — professional rework ([figures/README.md](../figures/README.md))
+- [ ] **Figures** `fig01..fig12` — professional rework ([figures/index.md](../figures/index.md))

@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Modularity and build"
+description: "CMake defconfig per class, Nix flakes, IPC."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 9. Modularity and build
 
 The implementation monorepo ([github.com/ltbhappyness/vedam](https://github.com/ltbhappyness/vedam)) uses **CMake + per-class defconfig**, **protobuf/gRPC**, and **Nix flakes** for reproducibility. Design **v0.4**: Vedam **does not ship prebuilt node binaries** — it ships **source, schemas, and build recipes**; operators and devices **build or cross-compile** installable packages with **OTA update** support.

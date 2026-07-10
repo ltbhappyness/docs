@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Security discipline"
+description: "crypto and consensus library policy, Linux hardening, post-quantum posture."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 8. Security discipline
 
 **Do not hand-roll crypto.** **Do not hand-roll consensus.** Use audited libraries; cite the protocols being implemented; harden hosts with standard Linux primitives rather than mandating full VMs.

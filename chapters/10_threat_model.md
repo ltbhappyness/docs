@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Threat model"
+description: "adversaries against the four conditions and their mitigations."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 10. Threat model
 
 Adversaries Vedam must withstand to keep the **four conditions** (body / mind / bonds / action) unblocked for every subject. Threats are listed against the four-condition framing, not only against the technical layers.

@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Network layer"
+description: "libp2p substrate, gossipsub, golden-ratio peer selection."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 4. Network layer
 
 **libp2p** provides transport (QUIC/TCP, Noise, DHT, **gossipsub**). **gRPC** carries application and **inter-validator** control traffic — framed over libp2p bidirectional streams and, between known peers, direct gRPC/QUIC where supported.

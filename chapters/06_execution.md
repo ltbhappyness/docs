@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Execution"
+description: "Tier A data + wallet; Tier B composable contracts; layman guide."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 6. Execution — native protocol and WASM dApp contracts
 
 Vedam uses **two execution tiers** (design **v0.4**). Both run under the same **`finality_digest`** quorum ([05_consensus.md](./05_consensus.md)); both persist results in **git-shaped storage** ([03_storage.md](./03_storage.md)).

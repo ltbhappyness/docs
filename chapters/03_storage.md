@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Storage layer (L0)"
+description: "libgit2 over SHA-256, content-addressed Merkle log, encrypted-RDF at rest, storage adapters, retrieval flow."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 3. Storage layer (L0)
 
 The storage layer is a **content-addressed Merkle log** via **libgit2** and **SHA-256**. Git provides **integrity**; **consensus** chooses which commits are **final**. Git alone does not order transactions or tolerate Byzantine writers.

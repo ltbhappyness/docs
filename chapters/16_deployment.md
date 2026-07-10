@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Deployment and operations"
+description: "edge app, install by node class, build/package, protocol surface, upgrade, CI."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 16. Deployment and operations
 
 This chapter is the operational blueprint: what software a Vedam participant installs, how nodes and the edge app are built and packaged, the protocol and library surface, third-party software choices, the upgrade strategy, and continuous integration. It is written so an implementer can begin building the system from a known starting point. Design **v0.4**; choices marked *open* defer to [12. Open questions](./12_open_questions.md).

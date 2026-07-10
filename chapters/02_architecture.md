@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Architecture"
+description: "overall stack, node classes A through E, layered reference view."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 2. Architecture
 
 Vedam is a **decentralized application platform**: peer nodes that **finalize** agreed history, store **git-shaped repos**, and run **two execution tiers** — **native protocol validation** (messaging, identity, wallet) and **WASM dApp contracts** (tokens, DeFi-style rules, composability). Design **v0.4**.

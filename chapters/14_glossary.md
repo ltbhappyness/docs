@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Glossary"
+description: "project-internal terms in one place."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 14. Glossary
 
 Project-internal terms, kept in one place to avoid drift across pages.

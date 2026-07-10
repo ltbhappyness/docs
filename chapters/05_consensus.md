@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Consensus"
+description: "finality_digest, async quorum replay, BFT; Narwhal/Bullshark batch ingest."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 5. Consensus
 
 Vedam requires **Byzantine fault-tolerant finality** — not probabilistic longest-chain proof-of-work. The agreed artifact is a **`finality_digest`** per commit (or per round hint), persisted in **ledger git** with metadata ([03_storage.md](./03_storage.md)).

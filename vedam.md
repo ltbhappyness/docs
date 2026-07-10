@@ -1,3 +1,11 @@
+---
+type: YellowPaper
+title: Vedam
+description: Yellow-paper entry — abstract, reading guide, and grouped table of contents for the decentralized substrate.
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # Vedam
 
 ### A decentralized substrate for the wellbeing of every subject of experience
@@ -63,10 +71,6 @@ Every chapter is written against the mission above: structural harm removal firs
 - [12. Open questions](./chapters/12_open_questions.md) — the design decisions that remain deliberately deferred.
 - [13. Human-machine shared bill of rights](./chapters/13_bill_of_rights.md) — the eight rights derived from the mission.
 - [14. Glossary](./chapters/14_glossary.md) — project-internal terms in one place.
-
-### Appendices
-
-- [Requirements traceability](./chapters/requirements.md) — REQ IDs and modules.
 
 ---
 

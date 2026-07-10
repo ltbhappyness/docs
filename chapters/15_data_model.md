@@ -1,3 +1,11 @@
+---
+type: Chapter
+title: "Data model and interoperability"
+description: "RDF/HDT content model, vocabularies, encode + encrypt pipeline, SOLID compatibility."
+tags: [yellow-paper]
+timestamp: 2026-07-11T00:00:00Z
+---
+
 # 15. Data model and interoperability
 
 Vedam treats data as **subject-owned and app-independent**. Content is expressed in **RDF** so that any application understanding a shared vocabulary can read the same data, and the substrate ships the tooling to produce, encrypt, and exchange it. This chapter defines the content model and the interoperability surface with the SOLID family of decentralized-Web standards. Design **v0.4**.
