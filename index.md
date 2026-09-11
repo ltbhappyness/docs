@@ -1,6 +1,5 @@
 # Vedam documentation
 
-* [README.md](README.md) - Cover
-* [vedam.md](vedam.md) - Yellow-paper entry (abstract, reading guide, contents)
-* [chapters/](chapters/) - Design chapters
-* [figures/](figures/) - SVG figures and logo
+* [README.md](README.md) — Cover
+* [vedam.md](vedam.md) — Vedam Design Spec (abstract, how to read, contents)
+* [chapters/](chapters/) — Design chapters by part
