@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./figures/vedam_logo.png" alt="Vedam logo — six black pentagons on white with V lines" width="320" />
+  <img src="./vedam_logo.svg" alt="Vedam logo — six pentagons in fivefold symmetry with a V accent" width="320" />
 </p>
 
 <h1 align="center"><a href="./vedam.md">vedam</a></h1>
