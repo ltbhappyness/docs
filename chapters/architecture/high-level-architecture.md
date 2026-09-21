@@ -1,16 +1,18 @@
 ---
 type: Chapter
 title: "High-level architecture"
-description: "planned source tree, public interfaces, inner modules, vedamd, and how a node runs."
+description: "source tree, call layers, public interfaces, inner modules, vedamd, and how a node runs."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+timestamp: 2026-09-22T00:00:00Z
 ---
 
 # 5. High-level architecture
 
-This chapter is the design of the platform at one viewing distance: close enough to name every public interface and every inner library, far enough that the C files still belong in later chapters. It is the high-level design of the **vedam** implementation tree as it will be built — not a tour of whatever currently sits on disk. Interfaces are designed first. Module interiors follow them.
+This chapter is the design of the platform at one viewing distance: close enough to name every public interface and every inner library, far enough that line-by-line C still belongs in the implementation tree and in Part III for the first class. Interfaces are designed first. Module interiors follow them.
 
-Vedam is **library-first**. A node is those libraries after the System class has been created. Peers keep history in **git-shaped repositories**. Every public action is a **generated** message that can travel inside a process or across the world without changing shape. Two execution tiers share the same agreement on history: **native validation** of Vedam’s own rules, and **WebAssembly** for rules strangers must be able to check without a company server.
+Vedam is **library-first**. A node is those libraries after the System class has been created. Peers will keep history in **git-shaped repositories**. Every public action is a **generated** message that can travel inside a process or across the world without changing shape. Two execution tiers share the same agreement on history: **native validation** of Vedam’s own rules, and **WebAssembly** for rules strangers must be able to check without a company server.
+
+The first shipping slice implements System, codegen, and enough transports to get and watch attributes. Later classes reuse the same layering.
 
 ---
 
@@ -34,27 +36,69 @@ None of this is lineage. Vedam’s own vision — four conditions, no happyness 
 
 ---
 
-## 5.2 Planned source tree
+## 5.2 Source tree
 
-This is the intended layout of the **vedam** repository. Names of directories are part of the design. They will be created to match this map; existing code is not the authority.
+This is the layout of the **vedam** repository for the System slice and the rooms reserved for what follows.
 
 ```
 vedam/
-  proto/                    Git submodule of vedam-interface (public .proto files).
-  tools/codegen/            protoc-gen-vedam-api — emits C headers, codecs, and transport adapters.
-  include/vedam/            Generated only: types.h, api/<class>.h, api.h. Never hand-edited as the contract.
-  src/vedamd/               The C daemon: daemonise, signals, then System.Create and the event loop.
-  lib/                      Always-loaded shared objects (still dlopen): core, system, event, transport, datastore.
-  plugins/                  Optional shared objects, loaded by registered identifier on System.Update.
-  src/                      Class implementations matching generated headers.
-  config/                   defconfig.class-a … defconfig.class-e.
-  tests/
-  cmake/
+  tools/codegen/            YAML + Jinja → vi / vii / va / via / proto
+  include/vi/               Public C API (installed)
+  include/vii/              Full C API and transport ops (not installed)
+  include/lib/              Hand declarations for vlib_*
+  include/platform/         vplatform_* categories
+  include/util/             Shared helpers (attributes, log, trace)
+  include/vti/              protoc C++ (compile only)
+  generated/proto/          Generated .proto for this tree
+  src/core/                 vedam_init / vedam_deinit
+  src/lib/                  Class bodies (system.c owns vedam_t)
+  src/va/ src/via/          Generated thin forwards and contract checks
+  src/vta/                  Transport ops: inproc, mq, grpc, grpc_uds, connect
+  src/platform/posix/       OS bodies behind vplatform_*
+  src/vedamd/               C daemon: flags, daemonise, init, wait, deinit
+  config/                   defconfig.class-* (compile-time plan)
+  examples/                 Programs that include only vi/
+  tests/                    Grouped util / system / transport tests
 ```
 
-**Interfaces first:** the public contract is the **vedam-interface** repository. This tree mounts it at `proto/`. The generator must run in a clean configure. `src/<class>/` implements the header that the generator emitted. Product applications are **separate repositories**. They `dlopen` the same shared objects; they are not folders inside `vedam/`.
+**Interfaces first:** YAML under `tools/codegen/` is the source of truth for C headers and for the `.proto` this tree compiles. The public **vedam-interface** repository is the published copy for application authors when a message change is ready for them. Product applications are **separate repositories**. They are not folders inside `vedam/`.
 
-**vedamd** lives in `src/vedamd/`. It is a **Unix daemon written in C**. It does not contain a user interface. It never links a static Vedam archive — only `dlopen`. After daemonise it is only: parse configuration, `System.Create`, run.
+**vedamd** lives in `src/vedamd/`. It is a **Unix daemon written in C**. It does not contain a user interface. After optional daemonise it is only: call `vedam_init`, wait for a signal, call `vedam_deinit`. The first slice links `libvedam`. Optional modules loaded by registered identifier remain the direction for plugins; empty `lib/` and `plugins/` placeholder trees are not part of this layout.
+
+## 5.2.1 Call layers
+
+Applications never see VII, VIA, or transport ops tables. Inside the node every public verb still walks the same stairs so a local call and a remote unpack cannot disagree on the contract.
+
+```mermaid
+flowchart TB
+  subgraph public [Installed for apps]
+    VI[vi_ headers and verbs]
+  end
+  subgraph node [Inside the node]
+    VA[va thin forward]
+    VII[vii full verbs]
+    VIA[via flags and types]
+    VLIB[vlib object state]
+    VTA[vta transport ops]
+    VP[vplatform OS helpers]
+  end
+  VI --> VA --> VII --> VIA --> VLIB
+  VTA --> VII
+  VLIB --> VTA
+  VLIB --> VP
+  VTA --> VP
+```
+
+| Layer | Responsibility |
+|-------|----------------|
+| VI | Public attribute ids and verbs only |
+| VA | External origin into VII |
+| VII / VIA | Origin, collapse, flags, types, then library |
+| VLIB | Singleton or object state |
+| VTA | Same verb over in-process, queue, or network bytes |
+| VPLATFORM | calloc, threads, sleep, mq, getenv, daemonise |
+
+Detail for System: [System class](../interfaces/system.md). Generator: [Proto layout and codegen](../interfaces/proto-codegen.md).
 
 ---
 
@@ -219,11 +263,11 @@ Read the figure left to right. Callers only see the generated classes. The Syste
 
 ## 5.5 Each public class as a vertical
 
-Headers live at `include/vedam/api/<class>.h`. On the wire, four verbs plus Notify still exist; a class that is implied simply **does not put Create in the public header**.
+Headers for applications live at `include/vi/class/<class>.h`. On the wire, verbs still exist; a class that is implied simply **does not put create in the public header**.
 
 | Class | Create in the public header? | What this vertical is for |
 |-------|------------------------------|---------------------------|
-| **System** | Yes | Birth and death of the instance. Health, class, quiet-hours, which plugins are loaded. |
+| **System** | No (internal; `vedam_init`) | Birth and death of the instance. Health, class, protocol version, transport slots. |
 | **Plugin** | Yes | Install or enable an **optional** module. Mandatory modules are already loaded by System create. |
 | **Event** | No | The log. Everything that would have been a line in a file is an event with attributes (severity, audience, correlation). Events are not ranked. |
 | **Transport** | No | Listeners bound at System create. Applications do not open sockets by hand. |
@@ -232,51 +276,51 @@ Headers live at `include/vedam/api/<class>.h`. On the wire, four verbs plus Noti
 | **Capability** | No | Probe and verify grants. An agent cannot widen what the master signed. |
 | **Profile** | No | Empty stub at start. Public fields are RDF behind Content. No happyness attributes. |
 | **Wallet** | No for the stub | Keys and signing in client-side wallet code. Simple transfer is native. Custom token rules, if any, are WebAssembly. No fee market as a substrate requirement. |
-| **Content** | Rare; upsert via Update | Objects the owner holds. Encryption on by default. Sharing is an Update, never a silent Create default. |
+| **Content** | Rare; upsert via set | Objects the owner holds. Encryption on by default. Sharing is a set, never a silent create default. |
 | **Locate** | No | Find and fetch ciphertext by hash. Plaintext exists only in authorised application memory. |
-| **Chanting** | Yes if the thread is not the default repo | High-intention messages. No like, follower, or dwell fields. |
+| **Chanting** | Application repo, not this tree | High-intention messages. No like, follower, or dwell fields. |
 | **Compute** | Yes | A session or a training swarm is opt-in. System create does **not** enrol the device. |
 | **Collective** | Yes | A group for collective compute. Same opt-in rule. |
-| **Ops** | Issues appear via Update | Observe → issue → review → upgrade, all as events. Optional adapters to GitHub or a builder. Never a silent worldwide push. |
+| **Ops** | Issues appear via set | Observe → issue → review → upgrade, all as events. Optional adapters to GitHub or a builder. Never a silent worldwide push. |
 
-Validator-facing votes and proposals share the codec and the transports. They are not all account-owner CRUD. The client still sees only **finalized** or **rejected** on the class that submitted the work (Chanting, Content, Identity, Compute).
+Validator-facing votes and proposals share the codec and the transports. They are not all account-owner CRUD. The client still sees only **finalized** or **rejected** on the class that submitted the work (Content, Identity, Compute, and later apps).
 
-Detail of each header: [API classes](../interfaces/api-classes.md). System create: [System class](../interfaces/system.md). How bytes move: [Transport and datastore](../interfaces/transport-datastore.md).
+Detail of System: [System class](../interfaces/system.md). Remaining headers: [API classes](../interfaces/api-classes.md). How bytes move: [Transport and datastore](../interfaces/transport-datastore.md).
 
 ---
 
 ## 5.6 Starting an instance
 
-`Create(system)` is the ordinary way to start. Analogues in other systems (construct an object and it runs; start a unit and its dependencies follow) are research shape only.
+`vedam_init` is the ordinary way to start in this slice. It builds transport attributes and calls internal System create. Analogues in other systems (construct an object and it runs; start a unit and its dependencies follow) are research shape only.
 
 ```mermaid
 sequenceDiagram
   participant Host as Native app or vedamd
-  participant Sys as System class
-  participant Core as Mandatory plugins
-  participant Rest as Other API classes
+  participant Init as vedam_init
+  participant Sys as System vlib
+  participant Rx as Transport listeners
 
-  Host->>Sys: Create system
-  Sys->>Core: load events, transports, git, identity stub
-  Core-->>Sys: implied objects ready
-  Sys-->>Host: system handle
-  Host->>Rest: Read, Update, Notify
-  Note over Rest: no Create where the object already exists
+  Host->>Init: vedam_init
+  Init->>Sys: create with node class and transports
+  Sys->>Rx: open and listen
+  Sys-->>Host: ready
+  Host->>Sys: vi_system_get / subscribe
+  Host->>Init: vedam_deinit
 ```
 
-Implied by System create (no separate Create, or Create rejected because the object already exists):
+Implied by System create in the **full** design (some items still wait for later classes):
 
+- Transport listeners for the selected local, IPC, and remote ops
 - The event bus and Event-class registrations
-- Transport listeners, according to the defconfig for this node class
 - The git datastore and default repositories
 - The plugin loader and **mandatory** plugins
 - A capability profile probe
-- Device key material if none exists, or a wait-for-owner path (still listed under [Open questions](../governance/open-questions.md) if Part III has not frozen it)
-- Empty profile, wallet stub, and public-content root so that Read and Update have somewhere to stand
+- Device key material if none exists, or a wait-for-owner path (see [Open questions](../governance/open-questions.md))
+- Empty profile, wallet stub, and public-content root so later get and set have somewhere to stand
 
-**Then** other classes make the node useful: Identity update (register or pseudonym), Wallet, Chanting, Compute enable, optional plugins, overlay join.
+**Today’s slice** starts transports and exposes System get / subscribe. The other implied objects arrive as their classes ship.
 
-**Delete(system)** unloads plugins and closes listeners. **Read(system)** is health, node class, capability, plugin list. **Update(system)** is defconfig, optional plugins, thermal and quiet-hours policy. **Notify(system)** is lifecycle and capability-change streams.
+**Delete** stops listeners and tears down the singleton (`vedam_deinit`). **Get** returns health fields that exist now (node class, protocol version, system state). **Set** and richer notify streams grow with later attributes. Subscribe watches protocol version and system state.
 
 System create does **not** enrol the device in a training swarm, does **not** turn on a ranking service, and does **not** make sharing the default.
 
@@ -284,25 +328,22 @@ System create does **not** enrol the device in a training swarm, does **not** tu
 
 ## 5.7 How the same message travels
 
-Three plug-in tables exist: **transport**, **datastore (git)**, and **offload (a door for later)**.
+Three plug-in tables exist in the full design: **transport**, **datastore (git)**, and **offload (a door for later)**.
 
-| Transport | What actually moves | How Notify arrives |
-|-----------|---------------------|--------------------|
-| In-process | Direct calls into the generated function table | Callbacks in the same process |
-| POSIX message queue | Length-prefixed protobuf | Queue plus the Event library |
-| Shared memory | The same bytes on a ring | Wait on a sequence number |
-| gRPC (local socket or QUIC) | Four services plus a bidirectional Notify | Stream |
-| libp2p / QUIC | Framed protobuf on `/vedam/api/<ver>` | Stream |
+| Transport | What actually moves today | How subscribe arrives |
+|-----------|---------------------------|------------------------|
+| In-process | Direct calls into VII on the caller thread | Same-process hooks |
+| POSIX message queue | Length-prefixed protobuf | Queue receive thread |
+| gRPC-style HTTP (TCP or Unix socket) | Unary POST with gRPC length prefix (temporary) | Same HTTP path until official gRPC streams |
+| Connect / QUIC | Stub ops; listen succeeds without a socket yet | Planned |
+| Shared memory | Planned | Planned |
+| libp2p / QUIC | Planned | Planned |
 
-All of them stream. All of them can spread load. The application author does not pick a transport in the class header. System create, or a later bind, selects the plugin.
+All of them stream in the full design. The application author does not pick a transport in the class header. Init, or a later bind, selects the ops table.
 
-Git is the datastore. A browser build uses **libgit2 compiled to WebAssembly** behind the same operations. There is not a second application database.
+Git is the datastore when that vertical ships. A browser build uses **libgit2 compiled to WebAssembly** behind the same operations. There is not a second application database.
 
-**vedam-ccl** is one hood: fast collectives when NVLink, UEC, libfabric, InfiniBand, or CUDA are present; otherwise ordinary send and receive plus a multicast-like fan-out on the Vedam overlay. A node must still work on CPU alone. A thin web client **uses** neural services; it does not run them. The distributed application is the brain, not one phone.
-
-The node is **event-driven**. Events persist, notify, or trigger. Logging is the Event class.
-
-Neural generate, train, infer, and distribute are **library services** for later account-owner apps. Shards may span many nodes. They are not a personality of vedamd.
+The node is **event-driven**. When Event ships, events persist, notify, or trigger. Logging is the Event class.
 
 ---
 

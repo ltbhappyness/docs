@@ -1,24 +1,26 @@
 ---
 type: Chapter
 title: "API classes"
-description: "remaining generated classes: identity, wallet, profile, content, compute, chanting, plugins, capability, locate, events, ops."
+description: "remaining generated classes after System; Event, Ops, and later verticals."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+timestamp: 2026-09-22T00:00:00Z
 ---
 
 # 10. API classes
 
-Generated headers under `include/vedam/api/`. System is specified in [System class](./system.md). This chapter lists the rest. Create policy matches the HLA table.
+Generated public headers will live under `include/vi/class/`. **System** is specified in full in [System class](./system.md). This chapter lists the rest so the map stays visible while their YAML and libraries are still ahead.
 
-Notify on every class is an Event stream (or a filter on the Event class). **Logging is the Event class**, never a file path attr.
+Subscribe on every class is an Event stream (or a filter on the Event class) when Event ships. **Logging is the Event class**, never a file path attribute.
+
+Each new class should gain a dedicated chapter (or an expanded section here) using the template in [Proto layout and codegen](./proto-codegen.md#76-per-class-documentation-pattern): types, attributes, verbs, and the layer walk.
 
 ---
 
 ## 10.1 Identity
 
-Register root Subject (human: nullifier gate; machine: attestation), device delegations, app-scoped pseudonyms, revocations. **Use** is Read/Update with a pseudonym; **register** is rare.
+Register root Subject (human: nullifier gate; machine: attestation), device delegations, app-scoped pseudonyms, revocations. **Use** is get/set with a pseudonym; **register** is rare.
 
-Create: only for truly new chapter / extra subject objects. Device stub may exist after System Create.
+Create: only for truly new chapter / extra subject objects. Device stub may exist after System create.
 
 Mission: no central issuer; SIOPv2 assertions are attrs, not an `id.vedam.net` service.
 
@@ -26,7 +28,7 @@ Mission: no central issuer; SIOPv2 assertions are attrs, not an `id.vedam.net` s
 
 ## 10.2 Wallet
 
-Keys, signing, nonce tracking live in client-side wallet code linked to this class. Simple native **Transfer** is Tier A. Custom token rules are Tier B (Compute / contract call). Stub exists after System Create; funding and transfers are Updates.
+Keys, signing, nonce tracking live in client-side wallet code linked to this class. Simple native **Transfer** is Tier A. Custom token rules are Tier B (Compute / contract call). Stub exists after System create; funding and transfers are sets.
 
 No fee market / token at MVP as a substrate requirement.
 
@@ -34,21 +36,21 @@ No fee market / token at MVP as a substrate requirement.
 
 ## 10.3 Profile
 
-Empty stub after Create. Public chapter profile is RDF behind Content. Private fields stay encrypted. No happyness or engagement attrs.
+Empty stub after create. Public chapter profile is RDF behind Content. Private fields stay encrypted. No happyness or engagement attrs.
 
 ---
 
 ## 10.4 Content
 
-Public and capability-gated objects. Create is **rare**; key-based upsert via Update is the common path. Bodies are RDF (or blob refs). Encryption default on; sharing is an explicit Update.
+Public and capability-gated objects. Create is **rare**; key-based upsert via set is the common path. Bodies are RDF (or blob refs). Encryption default on; sharing is an explicit set.
 
 ---
 
 ## 10.5 Compute
 
-Sessions and collective groups **have Create** — System Create does **not** enrol a swarm. Generate / train / infer / distribute are platform library services behind this class. Class E **uses** them remotely; it does not run training locally as a requirement.
+Sessions and collective groups **have create** — System create does **not** enrol a swarm. Generate / train / infer / distribute are platform library services behind this class. Class E **uses** them remotely; it does not run training locally as a requirement.
 
-Offload plugin bind is an Update when capability advertises an accelerator.
+Offload plugin bind is a set when capability advertises an accelerator.
 
 ---
 
@@ -60,25 +62,25 @@ Chanting is not an API class in this tree. It will be a separate application rep
 
 ## 10.7 Plugin
 
-Optional plugins are loaded by **registered identifier** on `System.Update` (`load_plugin_id`), not by a filesystem path. Mandatory libraries are `dlopen`ed at System Create. Signing and revocation: [Part V](../identity-security/external.md).
+Optional plugins are loaded by **registered identifier** on System set (`load_plugin_id`), not by a filesystem path. Mandatory libraries are present after System create. Signing and revocation: [Part V](../identity-security/external.md).
 
 ---
 
 ## 10.8 Capability
 
-No Create. Probed and verified at the owner node. UCAN-style: signed, delegable, revocable, **attenuating only**. Agents cannot mint a wider grant than the master issued. No platform-issued grant that bypasses the account owner.
+No create. Probed and verified at the owner node. UCAN-style: signed, delegable, revocable, **attenuating only**. Agents cannot mint a wider grant than the master issued. No platform-issued grant that bypasses the account owner.
 
 ---
 
 ## 10.9 Locate / Fetch
 
-No Create for the index. `Locate(hash)`, `Fetch(hash)`, `RequestAccess` → wrapped CEK. Integrity by hash. Plaintext only in authorized app memory.
+No create for the index. `Locate(hash)`, `Fetch(hash)`, `RequestAccess` → wrapped CEK. Integrity by hash. Plaintext only in authorized app memory.
 
 ---
 
 ## 10.10 Event (the log)
 
-No Create. The bus exists after System Create.
+No create. The bus exists after System create in the full design.
 
 | Attr family | Examples |
 |-------------|----------|
@@ -90,7 +92,7 @@ No Create. The bus exists after System Create.
 | Thermal / duty-cycle | body-kept-well hooks |
 | Poisoned-memory / starvation | agent isolation hooks |
 
-Handlers (plugins): persist batch to git, Notify subscribers, feed **Ops**, optional debug sink that **consumes events** (early human years). There is no `syslog` / `vedam.log` as the design.
+Handlers (plugins): persist batch to git, notify subscribers, feed **Ops**, optional debug sink that **consumes events** (early human years). There is no `syslog` / `vedam.log` as the design.
 
 Events are **unranked**. Sort order is local policy of the account owner.
 
@@ -100,19 +102,19 @@ Events are **unranked**. Sort order is local policy of the account owner.
 
 Self-heal spine. Issue objects are key-based; typical path is upsert from events, not a separate “ticket file.”
 
-Pipeline verbs appear as attrs and Notify: observe, normalize, track (open / reproducing / patch-proposed / reviewing / merged / verifying / shipped / closed), reproduce, change, review, integrate, qualify, upgrade.
+Pipeline verbs appear as attrs and notify: observe, normalize, track (open / reproducing / patch-proposed / reviewing / merged / verifying / shipped / closed), reproduce, change, review, integrate, qualify, upgrade.
 
 Optional adapter plugins: GitHub, JIRA, Jenkins / GitHub Actions, chat. The module does not require them. Early years: humans. Later: policy engines and test oracles — not a person-shaped agent as substrate.
 
-Upgrade Notify leads to **System.Update** on nodes. Personal devices: account-owner consent. Builder nodes may auto-apply. Self-heal is not a silent worldwide push.
+Upgrade notify leads to System set on nodes. Personal devices: account-owner consent. Builder nodes may auto-apply. Self-heal is not a silent worldwide push.
 
-Full SM: [Module inventory](../modules/inventory.md) cluster L and [Engineering](../engineering/engineering.md).
+Full detail: [Module inventory](../modules/inventory.md) and [Engineering](../engineering/engineering.md).
 
 ---
 
 ## 10.12 Validator-facing families
 
-Consensus proposals, votes, and epoch control are **not** all account-owner CRUD. They share the proto codec and transports but live in validator plugins. Client-visible outcome is still finalized / rejected on the submitting class (Chanting, Content, Identity, Compute).
+Consensus proposals, votes, and epoch control are **not** all account-owner CRUD. They share the codec and transports but live in validator plugins. Client-visible outcome is still finalized / rejected on the submitting class (Content, Identity, Compute, and later apps).
 
 ---
 

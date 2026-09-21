@@ -24,7 +24,13 @@ Decisions the project has deferred. Each is promoted into its parent chapter whe
 
 **libp2p binding.** Rust + C ABI vs C++. Decide once. Parent: cluster G.
 
-**Defconfig parsing in CMake.** Key=value or generated `vedam_config.cmake`; gate `add_subdirectory`. Parent: [Engineering](../engineering/engineering.md).
+**Defconfig parsing in CMake.** Key=value → generated `vedam_config.h`; gate optional MQ / gRPC / Connect sources. Parent: [Engineering](../engineering/engineering.md). Plan exists in `vedam/config/README.md`.
+
+**Official gRPC and Connect.** Replace the temporary HTTP/1.1 unary path with linked gRPC (and Connect over QUIC). Connect ops already stub listen. Parent: [Transport and datastore](../interfaces/transport-datastore.md).
+
+**Test framework.** Grow beyond three grouped test binaries toward a reusable harness and per-class suites. Parent: [Engineering](../engineering/engineering.md).
+
+**Platform socket category.** Move TCP / Unix-socket helpers behind `vplatform_*` when the temporary HTTP path is replaced or kept. Parent: HLA layering.
 
 **Class E split-architecture.** WASM libraries vs helper node vs both; dynamic linking in the browser. Parent: HLA + cluster A.
 
@@ -42,7 +48,7 @@ Decisions the project has deferred. Each is promoted into its parent chapter whe
 
 **Account-owner data directory layout.** `VEDAM_DATA`, chapter folders, shards.
 
-**Implementation repo layout split.** `vedam/modules/` vs `lib/` + `plugins/` + `apps/`; chanting web/mobile in-tree vs separate.
+**Implementation repo layout.** First System slice uses `include/vi|vii|lib|platform`, `src/lib|va|via|vta|platform`, linked `libvedam`. Optional `dlopen` plugins by registered id remain the direction; empty placeholder `lib/` / `plugins/` trees were removed.
 
 **Per-commit quorum timeout defaults.** $T_{\text{commit}}$, batch ack sizes, epoch length.
 

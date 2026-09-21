@@ -3,7 +3,7 @@ type: DesignSpec
 title: Vedam
 description: Vedam Design Spec — abstract, how to read, and table of contents.
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+timestamp: 2026-09-22T00:00:00Z
 ---
 
 # Vedam Design Spec
@@ -34,9 +34,9 @@ For humans, decades of embodied and social research point to recurring gates —
 
 This document is the **Vedam Design Spec**: the public design statement. [Part I](#part-i--foundations) states the mission and the motivation. The parts that follow specify architecture, generated interfaces, libraries, identity and terms, engineering, and governance. Implementation lives in a separate repository. When code and this spec conflict, this spec wins until it is consciously revised.
 
-The engineering work is **libraries and plugins**, loaded with `dlopen`. A native app — later, a chanting phone app in its own repository — starts the System class in its own process. That app **is** the node. When the node must run without a screen, a small C daemon named **vedamd** starts the same shared objects. A web page on [vedam.net](https://vedam.net) **talks to** that daemon.
+The engineering work is **libraries**. A native app — later, a chanting phone app in its own repository — starts the System class in its own process (`vedam_init`). That app **is** the node. When the node must run without a screen, a small C daemon named **vedamd** starts the same libraries. A web page on [vedam.net](https://vedam.net) **talks to** that daemon. Optional plugins loaded by registered identifier remain the long-term shape for modules that are not always present.
 
-Public application messages live in **[vedam-interface](https://github.com/ltbhappyness/vedam-interface)**. The C tree consumes that repository as a git submodule.
+Public message copies for application authors live in **[vedam-interface](https://github.com/ltbhappyness/vedam-interface)**. The C tree generates `.proto` and C headers from YAML in `tools/codegen/`, then publishes matching bytes to that repository when a change is ready for outsiders.
 
 ---
 
@@ -55,15 +55,15 @@ Read from [Part I](#part-i--foundations) onward, in the order below. The [chapte
 
 ### Part II — Architecture
 
-- [Introduction](./chapters/architecture/introduction.md) — why this part exists, who it is for, and what it covers.
+- [Introduction](./chapters/architecture/introduction.md) — purpose, audience, and the VI → VLIB call layers.
 - [Terminology](./chapters/architecture/terminology.md) — words used in the architecture; the full glossary is in Part VII.
 - [Viewpoints](./chapters/architecture/viewpoints.md) — who cares, what they need to know, where those answers live.
-- [High-level architecture](./chapters/architecture/high-level-architecture.md) — the planned source tree, public interfaces, inner modules, and how a node runs.
+- [High-level architecture](./chapters/architecture/high-level-architecture.md) — source tree, layers, public interfaces, inner modules, and how a node runs.
 
 ### Part III — Interfaces
 
-- [Proto layout and codegen](./chapters/interfaces/proto-codegen.md) — `.proto` source of truth; generated `types.h` and per-class headers.
-- [System class](./chapters/interfaces/system.md) — Create starts the instance; implied objects; CRUD+Notify.
+- [Proto layout and codegen](./chapters/interfaces/proto-codegen.md) — YAML source of truth; Jinja codegen; generated VI/VII and wire protobuf.
+- [System class](./chapters/interfaces/system.md) — first class: types, attributes, verbs, and each layer’s job.
 - [Transport and datastore](./chapters/interfaces/transport-datastore.md) — how the same message travels, and how git holds history.
 - [API classes](./chapters/interfaces/api-classes.md) — remaining generated classes including Event (the log) and Ops.
 

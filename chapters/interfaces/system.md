@@ -1,105 +1,180 @@
 ---
 type: Chapter
 title: "System class"
-description: "Create starts the instance; implied objects; CRUD+Notify."
+description: "First API class: types, attributes, verbs, and each layer’s job."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+timestamp: 2026-09-22T00:00:00Z
 ---
 
 # 8. System class
 
-Header: `include/vedam/api/system.h`. Generated from `system.proto`. **System is the first API class.** Other classes bring the node into useful running; several have no Create because System Create implied them.
+System is the **first API class**. It is the process-wide door to the node. Other classes will make the node useful; several will have no public create because System create implied them.
+
+Public header (generated): `include/vi/class/system.h`.  
+Full header (generated): `include/vii/class/system.h`.  
+Library body (hand-written): `src/lib/system.c`.  
+YAML source: `tools/codegen/src/classes/system.yaml`.
+
+Application code calls `vedam_init` / `vedam_deinit` and then the public System verbs. It does not call `vii_system_create` itself.
 
 ---
 
-## 8.1 Create
+## 8.1 Purpose
 
-**Create(system)** is the only ordinary way to start an instance.
+One System object exists per process. Create builds it, starts the selected transport listeners, and leaves the node ready for get and subscribe. Delete stops listeners and frees the object. Get and subscribe are how an account owner or a local helper learns health without becoming a landlord over other subjects’ data.
 
-Inputs (attrs): defconfig path or in-memory profile, node class A–E, data directory, bind list (UDS / MQ / shm / gRPC / libp2p), plugin policy (mandatory set vs allow-optional).
-
-Effects:
-
-1. Construct the Event bus; register Event class.
-2. Open datastore (git dirs, default repos).
-3. Bind transport listeners from defconfig.
-4. `dlopen` **mandatory** plugins; fail Create if a mandatory plugin is missing.
-5. Probe capability profile (CPU, RAM class, thermal, optional GPU).
-6. Device key material if none — **or** wait-for-owner (open).
-7. Stubs: empty profile, wallet stub, public-content root, Locate index so later Read/Update succeed.
-8. Return a system key / handle.
-
-Does **not**: enrol compute collectives; enable ranking (there is no ranking class); share content; auto-apply upgrades (policy attr, default consent on personal devices).
-
-Local-first: Create succeeds **offline**. Overlay join is a later Update on transport / network plugins.
+System create does **not** enrol the device in a training swarm, does **not** turn on a ranking service, and does **not** make sharing the default.
 
 ---
 
-## 8.2 Read, Update, Delete, Notify
+## 8.2 Types
 
-| Verb | Returns / does |
-|------|----------------|
-| **Read** | Health, node class, capability profile, plugin list, quiet-hours, upgrade policy, bind addresses |
-| **Update** | Defconfig hot fields, quiet-hours, upgrade-consent, and optional plugins by **registered identifier** (`load_plugin_id` / `unload_plugin_id`). The string is a name such as `overlay`, never a filesystem path. Only the process that called Create, or a caller with a grant from the account owner, may load plugins. |
-| **Delete** | Unload plugins, close listeners, flush WAL policy, tear down the instance |
-| **Notify** | Lifecycle (starting, ready, draining, dead), capability-change, thermal shed, plugin load/fail — as **events** |
+### Node class
+
+`vi_system_node_class_t` names the role of this process. It is chosen at create and is read-only afterward.
+
+| Enumerator | Meaning |
+|------------|---------|
+| Unspecified | No role has been chosen (invalid for a live node). |
+| A | Archive. Keeps a full copy of agreed history. |
+| B | Full check of agreed history. |
+| C | Light operator. Default for this process in the first slice. |
+| D | Small gateway. |
+| E | Thin client. |
+
+### Operational state
+
+`vi_system_state_e` sits inside `vi_system_state_t` (with reserved room for later fields).
+
+| State | Meaning |
+|-------|---------|
+| Starting | Create has begun; get is not ready. |
+| Ready | Transports are up; get and subscribe are allowed. |
+| Degraded | The process is up with a reduced set of transports. |
+| Draining | The process is finishing work and will stop. |
+| Dead | The process has stopped; get returns uninitialized. |
 
 ---
 
-## 8.3 Implied objects
+## 8.3 Attributes
 
-| Object | After Create | Create on its class? |
-|--------|----------------|----------------------|
-| Event bus | Exists | No |
-| Transport endpoints | Bound | No |
-| Datastore / default git repos | Open | No |
-| Capability profile | Probed | No |
-| Plugin loader | Running | Plugin Create is for **install**, not the loader |
-| Device key | If policy says so | Identity Create for new chapters / extra subjects |
-| Profile / wallet stubs | Empty | No |
-| Locate index | Empty | No |
+Callers pass a list of `{ id, value }`. For state attributes the caller supplies storage through `value.ptr`. Duplicate ids keep the last entry.
 
-Identity **registration** (nullifier, root Subject) is an Identity **Update** (or a rare Create of a new chapter), not implied as “already a person on the network.”
+### Public attributes
+
+| Id | Name | Type | Flags | Meaning |
+|----|------|------|-------|---------|
+| 1 | `NODE_CLASS` | `vi_system_node_class_t` | Read-only | Role of this process. |
+| 2 | `PROTOCOL_VERSION` | `v_version_t` | Read-only, subscribable | Agreed message version (this era: 0.1). |
+| 3 | `SYSTEM_STATE` | `vi_system_state_t` | Read-only, subscribable | Starting, ready, degraded, draining, or dead. |
+
+### Internal attributes (create-only)
+
+| Id | Name | Type | Meaning |
+|----|------|------|---------|
+| 4 | `LOCAL_TRANSPORT` | `v_transport_t *` | In-process ops (same thread as the caller). |
+| 5 | `IPC_TRANSPORT` | `v_transport_t *` | Local IPC ops (POSIX message queue by default; Unix-socket HTTP is the other option). |
+| 7 | `REMOTE_TRANSPORT` | `v_transport_t *` | Remote ops (gRPC-style HTTP on TCP in this slice; Connect may replace ops later). |
+
+Internal ids never appear in the public header. An external-origin get of those ids fails as not supported.
+
+On create, `NODE_CLASS` is **mandatory**. Missing it returns mandatory-attribute-missing.
 
 ---
 
-## 8.4 Bring-up after Create
+## 8.4 Verbs
 
-Typical **embed** after Create (`vedamd` or a native app in another repository — same calls):
+| Verb | Public header? | Origin | Behaviour |
+|------|----------------|--------|-----------|
+| **create** | No | Internal only | Allocate the singleton, copy transport slots, open and listen, set state to ready. |
+| **get** | Yes | External or internal | Fill values for the listed public (or, when internal, full) attribute ids. |
+| **set** | No | Internal only | Reserved for hot fields later; external set is not implemented. |
+| **delete** | No | Internal only | Stop transports and free the singleton (`vedam_deinit`). |
+| **subscribe** | Yes | Either | Watch attributes marked subscribable. |
+| **unsubscribe** | Yes | Either | Stop watches for the same caller; empty list clears all. |
+| **publish** | No | Internal | Fan out changed attributes on transports that hold subscribers. |
+
+Older drafts used the word **read**. The generated API uses **get**.
+
+---
+
+## 8.5 Layer walk for this class
+
+### VI — public surface
+
+`vi_system_get`, `vi_system_subscribe`, and `vi_system_unsubscribe` live in `include/vi/class/system.h`. Applications include only `vi/`.
+
+### VA — thin forward
+
+Generated `src/va/system.c` calls the matching `vii_*` with `V_ORIGIN_EXTERNAL`.
+
+### VII / VIA — contract
+
+Generated `src/via/system.c` implements `vii_system_*`. It collapses duplicate attribute ids, rejects unknown ids, rejects internal ids for external origin, enforces flags (read-only, create-only, subscribable, mandatory-on-create), checks pointer requirements for state gets, then calls `vlib_system_*`.
+
+### VLIB — object state
+
+`src/lib/system.c` owns `vedam_t`: node class, operational state, three transport slots and their address strings. Create starts each non-null ops table (`open` then `listen`). Get fills from that structure. Publish fans out to local, IPC, and remote publish hooks. Delete stops transports and frees the node.
+
+### Init
+
+`vedam_init` in `src/core/init.c` builds the three transport attribute values from environment defaults, calls `vii_system_create` with internal origin, and leaves the node ready. `vedam_deinit` calls delete.
+
+### Transports (VTA)
+
+| Slot | Default ops | Default address |
+|------|-------------|-----------------|
+| Local | In-process | (none; same thread) |
+| IPC | POSIX message queue | `/vedam.system` |
+| Remote | Temporary gRPC-style HTTP/1.1 + protobuf | `0.0.0.0:50051` |
+
+Selection is by environment today (`VEDAM_TRANSPORT_*`). Compile-time defconfig gates come next. Official gRPC C++ and Connect/QUIC are planned replacements for the temporary HTTP path; Connect listen already succeeds as a stub.
+
+### Platform
+
+Libraries and transports call `vplatform_*` (memory, string, thread, sleep, message queue, env, process). Operating-system headers stay under `src/platform/posix/`.
+
+### Wire (VTI)
+
+Generated protobuf types under `include/vti/` encode get requests and responses for the temporary HTTP path and the message-queue pack helpers. Application install trees do not ship these headers.
+
+---
+
+## 8.6 Bring-up
 
 ```mermaid
 sequenceDiagram
-  participant M as App or vedamd main
-  participant S as System
-  participant I as Identity
-  participant T as Transport
-  participant E as Event
+  participant Host as App or vedamd
+  participant Init as vedam_init
+  participant VII as vii_system_create
+  participant Lib as vlib_system
+  participant Rx as Transport listeners
 
-  M->>S: Create
-  S-->>M: handle
-  M->>I: Update register or wait owner
-  M->>T: Update overlay join optional
-  M->>E: Notify subscribe
-  Note over M: event loop until Delete
+  Host->>Init: vedam_init
+  Init->>VII: create with node class and transports
+  VII->>Lib: checks then create
+  Lib->>Rx: open and listen
+  Lib-->>Host: ready
+  Host->>Host: vi_system_get / subscribe
+  Host->>Init: vedam_deinit
 ```
 
-A web page or other **attach** client does **not** call Create: it binds to an instance that already exists and then Read/Update/Notify on other classes. Native mobile **does** call Create.
+A second process on the same machine may attach over IPC or remote without calling create. Native mobile and **vedamd** call `vedam_init` in-process.
 
 ---
 
-## 8.5 Mission-hardening defaults on System
+## 8.7 Mission-hardening defaults on System
 
-| Attr | Default |
-|------|---------|
-| Encryption at rest / E2E | On |
-| Quiet-hours | On (account owner may tighten) |
+| Concern | Default in this slice |
+|---------|------------------------|
 | Ranking | Absent (no API) |
-| Compute swarm | Off |
-| Upgrade | Consent required on personal / Class C–E; operator may set auto-apply on A/B builders |
-| Sharing | Not a Create default |
+| Compute swarm | Off (no enrolment on create) |
+| Sharing | Not a create default |
+| Encryption / quiet-hours / upgrade consent | Specified for later attributes; not yet all present on System |
+| Offline | Create and local get succeed without the public internet |
 
 ---
 
-## 8.6 References
+## 8.8 References
 
-[High-level architecture](../architecture/high-level-architecture.md) · [Proto layout and codegen](./proto-codegen.md) · [Mission-hardening](../foundations/mission.md#mission-hardening-on-the-platform)
+[High-level architecture](../architecture/high-level-architecture.md) · [Proto layout and codegen](./proto-codegen.md) · [Transport and datastore](./transport-datastore.md) · [Mission-hardening](../foundations/mission.md#mission-hardening-on-the-platform)

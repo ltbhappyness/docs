@@ -16,11 +16,11 @@ How the Design Spec is built, tested, operated, and scaled. Libraries remain the
 
 | Tree | Visibility | Role |
 |------|------------|------|
-| **`vedam-interface/`** | Public | Application messages (`.proto`). Source of truth for the generated API. |
-| **`vedam/`** | Private until it is safe | C shared objects, plugins, codegen, **vedamd**. `proto/` is a submodule of vedam-interface. |
+| **`vedam-interface/`** | Public | Published `.proto` copies for application authors. |
+| **`vedam/`** | Private until it is safe | C libraries, codegen (YAML → headers/proto), transports, **vedamd**. |
 | **`docs/`** | Private now, public soon | This Design Spec |
 | **`.magic/`** | Always private | Agent memory; never linked from this spec |
-| **Product apps** | Each its own repository | Chanting mobile, later neural apps, [vedam.net](https://vedam.net). They `dlopen` Vedam libraries or talk to **vedamd**. They are not folders inside `vedam/`. |
+| **Product apps** | Each its own repository | Chanting mobile, later neural apps, [vedam.net](https://vedam.net). They link Vedam libraries or talk to **vedamd**. They are not folders inside `vedam/`. |
 | **`ltbhX/`** | Mission site | Not the platform |
 
 ---
@@ -30,24 +30,25 @@ How the Design Spec is built, tested, operated, and scaled. Libraries remain the
 Linux-framework-like flow:
 
 - `config/defconfig.class-a` … `class-e` as Kconfig-style feature sets.
-- CMake **must parse** them and gate `add_subdirectory` (today's stub is a known gap — [Open questions](../governance/open-questions.md)).
+- CMake **must parse** them into `vedam_config.h` and gate optional sources (plan documented in `vedam/config/README.md`; not fully wired yet — [Open questions](../governance/open-questions.md)).
 - Presets: host debug, sanitizer, Class C default, cross ARM, Class E WASM.
 - `CMAKE_EXPORT_COMPILE_COMMANDS` for clangd.
 - Tooling: clang-format, clang-tidy, ASan/UBSan/TSan jobs, optional cppcheck.
 - **Nix flakes** for reproducible CI.
 - **Optional Yocto/OE** later for IoT images — not an HLA blocker.
-- Cross: `vedam/tools/cross/`; packages deb / tarball / AAR / IPA / WASM.
-- Proto codegen is a **CMake custom command**; headers are never hand-edited.
-- Unit tests per library; Catch2 or GoogleTest picked at first real test.
+- Codegen is a **CMake custom command** from YAML; public headers are never hand-edited as the contract.
+- Tests today: grouped `test_util`, `test_system`, `test_grpc_read`. A larger test framework is planned.
 - No shipped fat-binary requirement: source + recipes + OTA.
 
 ```bash
 cd vedam
-cmake -B build -DVEDAM_CONFIG_FILE=config/defconfig.class-c
+python3 tools/codegen/generate.py --root .
+cmake -B build
 cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
-`VEDAM_NODE_CLASS=A…E` selects the profile. Class E is client libraries compiled to WebAssembly, not a requirement to keep **vedamd** running all the time.
+`VEDAM_NODE_CLASS=A…E` selects the profile when defconfig parsing lands. Class E is client libraries compiled to WebAssembly, not a requirement to keep **vedamd** running all the time.
 
 ---
 

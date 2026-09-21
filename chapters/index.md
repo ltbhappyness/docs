@@ -9,16 +9,16 @@ Reading order is also listed on [vedam.md](../vedam.md). Files use semantic name
 
 # Part II — Architecture
 
-* [Introduction](architecture/introduction.md) — why this part exists, who it is for, and what it covers.
+* [Introduction](architecture/introduction.md) — purpose, audience, and the VI → VLIB call layers.
 * [Terminology](architecture/terminology.md) — words used in the architecture.
 * [Viewpoints](architecture/viewpoints.md) — who cares, what they need, where those answers live.
-* [High-level architecture](architecture/high-level-architecture.md) — source tree, interfaces, modules, how a node runs.
+* [High-level architecture](architecture/high-level-architecture.md) — source tree, layers, interfaces, modules, how a node runs.
 
 # Part III — Interfaces
 
-* [Proto layout and codegen](interfaces/proto-codegen.md) — proto source of truth; generated C API.
-* [System class](interfaces/system.md) — Create starts the instance.
-* [Transport and datastore](interfaces/transport-datastore.md) — transport, git, offload vtables.
+* [Proto layout and codegen](interfaces/proto-codegen.md) — YAML source of truth; Jinja codegen; generated VI/VII and protobuf.
+* [System class](interfaces/system.md) — first class: types, attributes, verbs, layer walk.
+* [Transport and datastore](interfaces/transport-datastore.md) — transport ops, git, offload.
 * [API classes](interfaces/api-classes.md) — remaining generated classes, Event, Ops.
 
 # Part IV — Modules
