@@ -3,7 +3,9 @@ type: Chapter
 title: "Viewpoints"
 description: "who the architecture is for, what they need to know, and where those answers live."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 4. Viewpoints

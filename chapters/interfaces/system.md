@@ -3,7 +3,9 @@ type: Chapter
 title: "System class"
 description: "First vertical: one object, attributes, verbs, and the walk from the public call to the library."
 tags: [design-spec]
-timestamp: 2026-09-27T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-27T00:00:00Z
 ---
 
 # 8. System class

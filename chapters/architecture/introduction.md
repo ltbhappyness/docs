@@ -3,7 +3,9 @@ type: Chapter
 title: "Introduction"
 description: "why the architecture part exists, who it is for, layering, and what it covers."
 tags: [design-spec]
-timestamp: 2026-09-22T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-22T00:00:00Z
 ---
 
 # 2. Introduction

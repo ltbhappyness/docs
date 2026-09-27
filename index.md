@@ -1,3 +1,7 @@
+---
+okf_version: "0.2"
+---
+
 # Vedam documentation
 
 * [README.md](README.md) — Cover

@@ -3,7 +3,9 @@ type: Chapter
 title: "Motivation"
 description: "the structural problems Vedam exists to address."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 1. Motivation

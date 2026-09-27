@@ -3,7 +3,9 @@ type: Chapter
 title: "High-level architecture"
 description: "source tree, call layers, public interfaces, inner modules, vedamd, and how a node runs."
 tags: [design-spec]
-timestamp: 2026-09-22T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-22T00:00:00Z
 ---
 
 # 5. High-level architecture

@@ -3,7 +3,9 @@ type: DesignSpec
 title: Vedam
 description: Vedam Design Spec — abstract, how to read, and table of contents.
 tags: [design-spec]
-timestamp: 2026-09-22T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-22T00:00:00Z
 ---
 
 # Vedam Design Spec

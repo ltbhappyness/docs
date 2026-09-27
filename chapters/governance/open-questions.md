@@ -3,7 +3,9 @@ type: Chapter
 title: "Open questions"
 description: "design decisions deliberately deferred, including honest Happyness gaps."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 14. Open questions

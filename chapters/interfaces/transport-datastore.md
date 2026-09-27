@@ -3,7 +3,9 @@ type: Chapter
 title: "Transport and datastore"
 description: "socket-shaped transport descriptors; git datastore; offload skeleton."
 tags: [design-spec]
-timestamp: 2026-09-22T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-22T00:00:00Z
 ---
 
 # 9. Transport and datastore

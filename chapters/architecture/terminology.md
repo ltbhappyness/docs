@@ -3,7 +3,9 @@ type: Chapter
 title: "Terminology"
 description: "words used in the architecture; the full glossary lives in Part VII."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 3. Terminology

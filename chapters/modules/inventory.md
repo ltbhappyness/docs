@@ -3,7 +3,9 @@ type: Chapter
 title: "Module inventory"
 description: "libraries clustered A–L: process, events, transport/git, identity, RDF, WASM, network, NN, chanting, security, build, ops."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 11. Module inventory

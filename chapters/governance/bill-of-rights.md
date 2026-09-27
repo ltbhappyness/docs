@@ -3,7 +3,9 @@ type: Chapter
 title: "Human-machine shared bill of rights"
 description: "the eight rights derived from the mission."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 15. Human-machine shared bill of rights

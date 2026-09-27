@@ -3,7 +3,9 @@ type: Chapter
 title: "Engineering"
 description: "CMake, defconfig, Nix, tests, event-log, ops module, testnet, and GPU-versus-phone analysis."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 13. Engineering

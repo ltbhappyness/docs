@@ -3,7 +3,9 @@ type: Chapter
 title: "Identity, security, and terms"
 description: "account-owner view of identity, grants, threats, acceptable use, and upgrade consent."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 12. Identity, security, and terms

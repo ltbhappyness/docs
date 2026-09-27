@@ -3,7 +3,9 @@ type: Chapter
 title: "Proto layout and codegen"
 description: "YAML source of truth; Jinja templates; generated C headers and the published messages."
 tags: [design-spec]
-timestamp: 2026-09-27T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-27T00:00:00Z
 ---
 
 # 7. Proto layout and codegen

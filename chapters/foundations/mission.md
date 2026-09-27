@@ -3,7 +3,9 @@ type: Chapter
 title: "Mission"
 description: "the four-condition thesis, golden-ratio symbology, mission-hardening primitives, and the universal scope."
 tags: [design-spec]
-timestamp: 2026-09-11T00:00:00Z
+generated:
+  by: process:ltbh-vedam
+  at: 2026-09-11T00:00:00Z
 ---
 
 # 0. Mission
