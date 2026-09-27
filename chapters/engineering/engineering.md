@@ -36,8 +36,8 @@ Linux-framework-like flow:
 - Tooling: clang-format, clang-tidy, ASan/UBSan/TSan jobs, optional cppcheck.
 - **Nix flakes** for reproducible CI.
 - **Optional Yocto/OE** later for IoT images — not an HLA blocker.
-- Codegen is a **CMake custom command** from YAML; public headers are never hand-edited as the contract.
-- Tests today: grouped `test_util`, `test_system`, `test_grpc_read`. A larger test framework is planned.
+- Codegen is a **CMake custom command** from YAML. Public headers and `proto/vedam/` are never hand-edited as the contract.
+- Tests in this tree: `test_ds`, `test_util`, `test_system`, `test_lock_transport`, `test_grpc_read`, `test_verticals`, `test_codec_r8`. Queue tests need permission to open a POSIX message queue. A larger framework can come later.
 - No shipped fat-binary requirement: source + recipes + OTA.
 
 ```bash

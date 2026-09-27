@@ -30,11 +30,13 @@ There is no central `id.vedam.net`. Session is **SIOPv2** self-issue plus regist
 
 ---
 
-## 12.2 What System Create promises
+## 12.2 What starting the node promises
 
-After Create, the instance is **local-first** and **offline-capable**. Encryption at rest and E2E default **on**. Sharing is an explicit Update. There is **no ranking API**. Compute swarm is **off**. Quiet-hours default on. Events are unranked.
+`vedam_init` brings the node up on the device. The copy on that device is the one that answers a local get. Sharing is not turned on by starting. There is no ranking attribute. A compute swarm is not enrolled.
 
-The owner may tighten quiet-hours and thermal policy; apps must not reopen them as dark patterns.
+Encryption at rest, quiet hours, and upgrade consent are the intended defaults for later attributes. They are not fields on System yet. Events, when that vertical exists, stay unranked.
+
+The account owner may tighten quiet hours and thermal policy. An application must not reopen them as a trap for attention.
 
 ---
 

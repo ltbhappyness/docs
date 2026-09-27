@@ -16,10 +16,10 @@ Reading order is also listed on [vedam.md](../vedam.md). Files use semantic name
 
 # Part III — Interfaces
 
-* [Proto layout and codegen](interfaces/proto-codegen.md) — YAML source of truth; Jinja codegen; generated VI/VII and protobuf.
-* [System class](interfaces/system.md) — first class: types, attributes, verbs, layer walk.
-* [Transport and datastore](interfaces/transport-datastore.md) — transport ops, git, offload.
-* [API classes](interfaces/api-classes.md) — remaining generated classes, Event, Ops.
+* [Proto layout and codegen](interfaces/proto-codegen.md) — YAML source of truth; one `vi_msg_t`; published messages.
+* [System class](interfaces/system.md) — first vertical: attributes, verbs, and the walk to the library.
+* [Transport and datastore](interfaces/transport-datastore.md) — in-process pointer, queue, temporary HTTP, git later.
+* [API classes](interfaces/api-classes.md) — identity, storage, security, wasm, and later verticals.
 
 # Part IV — Modules
 

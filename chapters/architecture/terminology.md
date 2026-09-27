@@ -42,11 +42,14 @@ The table in each section is the working vocabulary for Part II. The [glossary](
 
 | Term | Meaning |
 |------|---------|
-| **Generated API** | C headers emitted from `.proto` files by the Vedam code generator: shared types, one header per class, and an umbrella header. App authors include those headers. They do not choose a transport in the header. |
-| **System class** | The first public class. Creating a System object starts the instance. Several other classes have no Create of their own because the System already made their objects. |
-| **CRUD+Notify** | Create, Read, Update, Delete, and a Notify stream. The same verbs exist on every transport. A class may omit Create from its public header when the object is implied. |
+| **Generated API** | C headers emitted from YAML: shared types, one header per vertical, and `vi_msg_t`. Application authors include those headers. They do not choose a transport in the header. |
+| **Vertical** | The contract behind one call: verbs, object key, and attributes. Its public id is sixteen bytes. The C sources still say class. The public word is vertical. |
+| **System** | The first vertical. One object per process. `vedam_init` brings it up. Public callers then use get, subscribe, and unsubscribe. |
+| **Message** | One `vi_msg_t` in C, and one `Message` in the published files. Request and response are that object. Subscribe returns once. Notify is the later stream. |
 | **Event class** | The log. Severity, component, correlation, and similar fields are attributes on events. Logging is not “open a file and print lines.” |
 | **Ops class** | Self-heal: issues, reviews, and upgrades as events. GitHub, JIRA, or Jenkins may exist as optional adapters. They are not the module. |
+
+A vertical’s public id is sixteen bytes. Vedam’s own verticals form that id as UUID version 5 of the UTF-8 string `vertical/major/minor/commit` under the published Vedam namespace (itself version 5 of the DNS name `vedam.net`). The commit in that string is the constant that opened that major.minor line; a later line does not rewrite it. Another author may use that same recipe with their own domain in the name, or may publish sixteen bytes produced another way. The node can only require that those sixteen bytes are not already loaded; it cannot police how the rest of the world chooses them. Old and new bytes for one vertical may be registered together. The library of that vertical keeps each version’s behavior. The public header shows the latest id; older supported lines stay inside the vertical, indexed by major and minor, until that line is removed. The commit of a running build is a system attribute for a person to read; it is not part of the vertical id.
 
 ---
 
@@ -54,7 +57,7 @@ The table in each section is the working vocabulary for Part II. The [glossary](
 
 | Term | Meaning |
 |------|---------|
-| **Transport** | A plug-in path that carries the **same** protobuf bytes: a direct call inside the process, a POSIX message queue, a shared-memory ring, gRPC (a remote call, local or networked), or libp2p (the peer overlay). Every transport offers a stream and can spread load. |
+| **Transport** | A descriptor that carries the **same** messages. Three links: inside the process, another process on the same machine, or a network. Open, listen, accept, connect, call, and close. Create, get, set, delete, subscribe, unsubscribe, and notify are verbs on call. A later shared-memory ring or peer overlay uses the same descriptor. |
 | **Datastore** | Git, through libgit2 (and libgit2 compiled to WebAssembly in a browser build). There is not a second application database beside it. |
 | **Offload** | A reserved slot for later accelerator work. This generation specifies the door, not a production GPU path. |
 | **Message plane and ledger plane** | Readable life (encrypted RDF and blobs) versus what peers must agree in public (hashes, refs, a finality digest, identity registry entries). |

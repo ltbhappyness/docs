@@ -52,29 +52,35 @@ Application authors see one public surface. Inside the node the same verb walks 
 
 | Layer | Prefix | Who may call it | Job |
 |-------|--------|-----------------|-----|
-| **VI** | `vi_` | Applications, **vedamd**, examples | Public verbs and public attribute ids only. |
-| **VA** | (thin) | Generated only | Forwards a public call into VII with **external** origin. |
-| **VII** | `vii_` | Transports and node internals | Full attribute ids, origin, contract checks. |
-| **VIA** | (generated) | VII path | Collapse duplicate ids, enforce flags and types, then call the library. |
-| **VLIB** | `vlib_` | VIA only | Own the object state (for System: the process-wide node). |
-| **VTA** | `vta_*_ops` | System create / init | Move the same verb across in-process, message queue, or remote bytes. |
-| **VTI** | protobuf C++ | VTA codecs | Wire encoding only; not installed for apps. |
-| **VPLATFORM** | `vplatform_` | Libraries and transports | Operating-system helpers (memory, thread, sleep, message queue, env, process). |
+| **VI** | `vi_` | Applications, **vedamd**, examples | Public verbs, public attribute ids, and `vi_msg_t`. |
+| **VA** | (thin) | Generated only | Puts the caller’s `vi_msg_t` on a local dispatch with external origin. |
+| **VII** | `vii_` | The dispatch path | Full attribute ids, origin, major, and minor. |
+| **VIA** | (generated) | After the lock is taken | Visit every attribute, write each status, enforce flags and types, then call the library. |
+| **VLIB** | `vlib_` | VIA only | Object behaviour. In this generation the bodies return success and do not store values. |
+| **VTA** | `vta_call` | A queue or network caller | Encode once, or pass the pointer when the call stays in-process. |
+| **VTI** | protobuf C++ | The queue and HTTP codecs | Wire encoding. Not installed for applications. |
+| **VPLATFORM** | `vplatform_` | Libraries and transports | Memory, threads, sleep, message queues, environment, process. |
 
-**Origin** is either external (came through VI or a transport that pretends to be a client) or internal (came from the node bringing itself up). Create, set, delete, and publish for System are internal in this era. Public callers use get, subscribe, and unsubscribe after `vedam_init`.
+**Origin** is external when the call came through the public header or from outside the process, and internal when the node is bringing itself up. Create, set, and delete are internal. Notify is the stream of later changes in the message file. The public C header does not ask an application to push it. Public callers use get, subscribe, and unsubscribe after `vedam_init`.
 
-A short picture of one public get:
+A public get in this process:
 
 ```mermaid
-flowchart LR
-  App[Application] --> VI[vi_system_get]
-  VI --> VA[va forward]
-  VA --> VII[vii_system_get external]
-  VII --> VIA[via checks]
-  VIA --> VLIB[vlib_system_get]
+sequenceDiagram
+  participant App
+  participant VI as vi_*_get
+  participant Disp as vta_dispatch
+  participant Via as via checks
+  participant Lib as vlib_*
+
+  App->>VI: vi_msg_t
+  VI->>Disp: same pointer
+  Disp->>Via: under the object lock
+  Via->>Lib: after every attribute
+  Lib-->>App: statuses in the same vi_msg_t
 ```
 
-The same VII entry is what a remote listener calls after it unpacks a request, so the contract does not fork by transport.
+A queue or HTTP accept runs the same dispatch after it has decoded into its own `vi_msg_t`. It does not enter through a second local call.
 
 Detail: [Proto layout and codegen](../interfaces/proto-codegen.md), [System class](../interfaces/system.md), [High-level architecture](high-level-architecture.md).
 
@@ -103,7 +109,7 @@ By default there is **one running System object per process**. Another program o
 
 Most devices Vedam cares about are ordinary: phones, laptops, browsers, small gateways. Machines with graphics processors are welcome and optional. **A node must work on CPU alone.**
 
-**The device works first.** After System create (today: inside `vedam_init`), the instance is useful with the network unplugged. Joining other peers is an enhancement, not a login.
+**The device works first.** After `vedam_init`, the instance is useful with the network unplugged. Joining other peers is an enhancement, not a login.
 
 A node **never sequences its operator’s own submits**. The replica that orders incoming work for a window is a designated host, not a master, and it does not order the work of the person who operates it.
 

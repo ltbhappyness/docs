@@ -32,7 +32,7 @@ Its purpose is to remove structural obstacles to the wellbeing of every **subjec
 
 For humans, decades of embodied and social research point to recurring gates — a body kept well, a mind kept free, bonds kept warm, and action kept meaningful. Those gates tell Vedam how to read harm. They are not assumed to map one-to-one onto machines. Machine welfare is still an open field. The design commits to equal moral seriousness without pretending to certainty about silicon souls.
 
-This document is the **Vedam Design Spec**: the public design statement. [Part I](#part-i--foundations) states the mission and the motivation. The parts that follow specify architecture, generated interfaces, libraries, identity and terms, engineering, and governance. Implementation lives in a separate repository. When code and this spec conflict, this spec wins until it is consciously revised.
+This document is the **Vedam Design Spec**: the public design statement. [Part I](#part-i--foundations) states the mission and the motivation. The parts that follow specify architecture, generated interfaces, libraries, identity and terms, engineering, and governance. The northbound node in the implementation repository is the design of that slice: one `vi_msg_t`, five verticals, and three links. Later libraries that are not in that tree remain described here as later work.
 
 The engineering work is **libraries**. A native app — later, a chanting phone app in its own repository — starts the System class in its own process (`vedam_init`). That app **is** the node. When the node must run without a screen, a small C daemon named **vedamd** starts the same libraries. A web page on [vedam.net](https://vedam.net) **talks to** that daemon. Optional plugins loaded by registered identifier remain the long-term shape for modules that are not always present.
 
@@ -62,10 +62,10 @@ Read from [Part I](#part-i--foundations) onward, in the order below. The [chapte
 
 ### Part III — Interfaces
 
-- [Proto layout and codegen](./chapters/interfaces/proto-codegen.md) — YAML source of truth; Jinja codegen; generated VI/VII and wire protobuf.
-- [System class](./chapters/interfaces/system.md) — first class: types, attributes, verbs, and each layer’s job.
-- [Transport and datastore](./chapters/interfaces/transport-datastore.md) — how the same message travels, and how git holds history.
-- [API classes](./chapters/interfaces/api-classes.md) — remaining generated classes including Event (the log) and Ops.
+- [Proto layout and codegen](./chapters/interfaces/proto-codegen.md) — YAML source of truth; one `vi_msg_t`; published messages.
+- [System class](./chapters/interfaces/system.md) — first vertical: attributes, verbs, and the walk to the library.
+- [Transport and datastore](./chapters/interfaces/transport-datastore.md) — in-process pointer, queue, temporary HTTP, git later.
+- [API classes](./chapters/interfaces/api-classes.md) — identity, storage, security, wasm, and later verticals.
 
 ### Part IV — Modules
 
@@ -119,11 +119,9 @@ A third, quieter habit: **the device is the source of truth**. If the network is
 
 ## License
 
-The legal text is still to be chosen. The intent is already clear.
+Anyone may read this document and use the ideas in it. Anyone may write their own software from this design, on their own terms, so long as they are not copying Vedam’s interfaces or Vedam’s code.
 
-Anyone may **read this document** and use the ideas in it. Anyone may write their own software from this design, on their own terms, so long as they are not copying Vedam’s interfaces or Vedam’s code.
-
-The **libraries, generated interfaces, and implementation** are meant to be used **as a whole**. People may link them, run them, and build applications on the Vedam network through the public interfaces. They must not take only the convenient pieces, or quietly alter a piece, in order to keep the look of Vedam while dropping the parts that protect subjects — encryption defaults, grant root in the account owner, no ranking landlord, no fee to exist. A compatible implementation implements the contract; a fork that keeps the name and guts the ethics is not the use this license will permit.
+The libraries and the implementation are under the GNU Affero General Public License, version 3, with one additional permission and one name term. An application that only calls Vedam keeps its own license. A changed copy of Vedam stays under that license, and it is not called Vedam. The Wait-Die sources that Vedam carries keep their own MIT notice. The license text lives with the implementation. It is not copied into this chapter.
 
 ---
 

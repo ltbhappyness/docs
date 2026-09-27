@@ -22,8 +22,8 @@ NN generate / train / infer / distribute are **platform libraries**. Account-own
 | **event lib** | POSIX MQ + threads; register / post / subscribe (implementation of the Event class) |
 | **dlopen loader** | Mandatory vs optional plugins; signature check hook |
 | **thermal governor** | Advertise/shed; Events not files |
-| **vedamd** | C daemon: daemonise, then System.Create and the event loop |
-| **protoc-gen-vedam-api** | Headers + adapters ([Proto layout and codegen](../interfaces/proto-codegen.md)) |
+| **vedamd** | C daemon: optional daemonise, then `vedam_init`, wait, `vedam_deinit` |
+| **codegen** | YAML and Jinja write the headers and `proto/vedam/` ([Proto layout and codegen](../interfaces/proto-codegen.md)) |
 
 Mandatory plugin set is small so Class C–E stay first-class. Optional plugins (NN, cloud adapter, Ops adapters, GPU offload) load on capability and account-owner Update.
 

@@ -30,7 +30,7 @@ Some projects already move git objects between peers without a central host. **R
 
 **libp2p** is a toolkit for speaking to peers: dial, listen, encrypt a session, gossip. **gRPC** is a way to call a function on another process as if it were local, carrying protobuf messages. **protobuf** is a typed, compact encoding of messages. **libsodium** is a well-audited box of cryptographic primitives. Vedam uses these as **tools**, introduced here so later sentences can name them without magic.
 
-**Local-first** means the copy on the owner’s device is the real copy. The network is how copies meet, not a landlord. **Privacy as default** means sharing is a later, explicit act. Vedam takes both habits. They are not citations to hide behind; they are how a node behaves after System create with the cable pulled out.
+**Local-first** means the copy on the owner’s device is the real copy. The network is how copies meet, not a landlord. **Privacy as default** means sharing is a later, explicit act. Vedam takes both habits. They are how a node behaves after `vedam_init` with the cable pulled out.
 
 None of this is lineage. Vedam’s own vision — four conditions, no happyness score, grants that only shrink, geometry instead of growth targets — is the reason to take a joint and leave the rest of the house.
 
@@ -44,14 +44,19 @@ This is the layout of the **vedam** repository for the System slice and the room
 vedam/
   tools/codegen/            YAML + Jinja → vi / vii / va / via / proto
   include/vi/               Public C API (installed)
-  include/vii/              Full C API and transport ops (not installed)
+  include/vii/              Full C API (not installed)
+  include/core/             Node and receiver slots
+  include/lock/             In-process Wait-Die wrapper
+  include/ds/               Hash and list helpers
   include/lib/              Hand declarations for vlib_*
   include/platform/         vplatform_* categories
   include/util/             Shared helpers (attributes, log, trace)
-  include/vti/              protoc C++ (compile only)
-  generated/proto/          Generated .proto for this tree
+  include/vti/              Protobuf messages and transport descriptors
+  proto/                    vedam-interface submodule, files in proto/vedam/
   src/core/                 vedam_init / vedam_deinit
-  src/lib/                  Class bodies (system.c owns vedam_t)
+  src/lock/                 Wait-Die map (wwlock sources stay MIT)
+  src/ds/                   Hash and list bodies
+  src/lib/                  Class bodies (vlib_* ; System body is a later slice)
   src/va/ src/via/          Generated thin forwards and contract checks
   src/vta/                  Transport ops: inproc, mq, grpc, grpc_uds, connect
   src/platform/posix/       OS bodies behind vplatform_*
@@ -93,8 +98,8 @@ flowchart TB
 |-------|----------------|
 | VI | Public attribute ids and verbs only |
 | VA | External origin into VII |
-| VII / VIA | Origin, collapse, flags, types, then library |
-| VLIB | Singleton or object state |
+| VII / VIA | Origin, visit every attribute, flags, types, then the library |
+| VLIB | Library body. In this generation it returns success and does not store values. |
 | VTA | Same verb over in-process, queue, or network bytes |
 | VPLATFORM | calloc, threads, sleep, mq, getenv, daemonise |
 
@@ -104,7 +109,7 @@ Detail for System: [System class](../interfaces/system.md). Generator: [Proto la
 
 ## 5.3 How a node starts: an app, or vedamd
 
-A **node** is not a particular binary. It is the libraries after `System.Create`.
+A **node** is not a particular binary. It is the libraries after `vedam_init`.
 
 On a **phone**, a native app (chanting will be its own repository) **dlopen**s the libraries and starts the System class in the app process. The app is the node.
 
@@ -291,36 +296,26 @@ Detail of System: [System class](../interfaces/system.md). Remaining headers: [A
 
 ## 5.6 Starting an instance
 
-`vedam_init` is the ordinary way to start in this slice. It builds transport attributes and calls internal System create. Analogues in other systems (construct an object and it runs; start a unit and its dependencies follow) are research shape only.
+`vedam_init` is how a node starts. It fills the verb table and the id hash, listens on the three links, and runs an internal create that returns success. The library does not yet store node class or version.
 
 ```mermaid
 sequenceDiagram
   participant Host as Native app or vedamd
   participant Init as vedam_init
-  participant Sys as System vlib
-  participant Rx as Transport listeners
+  participant Rx as Three listeners
+  participant Lib as vlib_system_create
 
   Host->>Init: vedam_init
-  Init->>Sys: create with node class and transports
-  Sys->>Rx: open and listen
-  Sys-->>Host: ready
-  Host->>Sys: vi_system_get / subscribe
+  Init->>Rx: listen on each link
+  Init->>Lib: internal create
+  Lib-->>Host: success
+  Host->>Host: vi_system_get
   Host->>Init: vedam_deinit
 ```
 
-Implied by System create in the **full** design (some items still wait for later classes):
+The full design still expects, when those verticals exist, an event log, a git store, and a plugin loader. They are not created by `vedam_init` today.
 
-- Transport listeners for the selected local, IPC, and remote ops
-- The event bus and Event-class registrations
-- The git datastore and default repositories
-- The plugin loader and **mandatory** plugins
-- A capability profile probe
-- Device key material if none exists, or a wait-for-owner path (see [Open questions](../governance/open-questions.md))
-- Empty profile, wallet stub, and public-content root so later get and set have somewhere to stand
-
-**Today’s slice** starts transports and exposes System get / subscribe. The other implied objects arrive as their classes ship.
-
-**Delete** stops listeners and tears down the singleton (`vedam_deinit`). **Get** returns health fields that exist now (node class, protocol version, system state). **Set** and richer notify streams grow with later attributes. Subscribe watches protocol version and system state.
+**Get** asks for the listed System attributes. Until the library body stores them, a success with empty values is not the protocol version. **Subscribe** registers a watch and returns once. **Notify** is the later stream in the message file. The node does not push it yet. **Delete** is internal. `vedam_deinit` stops the listeners.
 
 System create does **not** enrol the device in a training swarm, does **not** turn on a ranking service, and does **not** make sharing the default.
 
@@ -330,16 +325,17 @@ System create does **not** enrol the device in a training swarm, does **not** tu
 
 Three plug-in tables exist in the full design: **transport**, **datastore (git)**, and **offload (a door for later)**.
 
-| Transport | What actually moves today | How subscribe arrives |
-|-----------|---------------------------|------------------------|
-| In-process | Direct calls into VII on the caller thread | Same-process hooks |
-| POSIX message queue | Length-prefixed protobuf | Queue receive thread |
-| gRPC-style HTTP (TCP or Unix socket) | Unary POST with gRPC length prefix (temporary) | Same HTTP path until official gRPC streams |
-| Connect / QUIC | Stub ops; listen succeeds without a socket yet | Planned |
-| Shared memory | Planned | Planned |
-| libp2p / QUIC | Planned | Planned |
+| Door | How a call moves | How a watch is kept |
+|------|------------------|---------------------|
+| In-process | The caller’s `vi_msg_t` is dispatched. The return is the reply. Nothing is encoded. | Not stored on the node yet |
+| POSIX message queue | Connect opens the listen queue and one reply queue. Each call encodes once and reuses that reply queue. | The caller’s descriptor stays open if the caller keeps it. The node does not yet keep a subscriber list. |
+| Temporary HTTP on TCP | Connect opens one socket. Later calls reuse it. The listen side reads the next request on that socket. | Same. Notify is named in the message file and is not pushed yet. |
+| Temporary HTTP on a Unix socket | The same bytes as TCP, on a path that includes the process id | Same |
+| Connect over QUIC | Stub. No socket. | Later |
+| Shared memory | Later, same descriptor | Later |
+| Peer overlay | Later, same descriptor | Later |
 
-All of them stream in the full design. The application author does not pick a transport in the class header. Init, or a later bind, selects the ops table.
+The application author does not pick a door in the class header. Start-up selects the operations table for each link. Official gRPC replaces the temporary HTTP framing without a new verb.
 
 Git is the datastore when that vertical ships. A browser build uses **libgit2 compiled to WebAssembly** behind the same operations. There is not a second application database.
 

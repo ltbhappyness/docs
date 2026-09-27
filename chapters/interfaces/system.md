@@ -1,29 +1,32 @@
 ---
 type: Chapter
 title: "System class"
-description: "First API class: types, attributes, verbs, and each layer’s job."
+description: "First vertical: one object, attributes, verbs, and the walk from the public call to the library."
 tags: [design-spec]
-timestamp: 2026-09-22T00:00:00Z
+timestamp: 2026-09-27T00:00:00Z
 ---
 
 # 8. System class
 
-System is the **first API class**. It is the process-wide door to the node. Other classes will make the node useful; several will have no public create because System create implied them.
+System is the first vertical. It is the process-wide object for the node. Other verticals become useful after this object exists. Several of them have no public create, because starting the node already brought them up.
 
-Public header (generated): `include/vi/class/system.h`.  
-Full header (generated): `include/vii/class/system.h`.  
-Library body (hand-written): `src/lib/system.c`.  
-YAML source: `tools/codegen/src/classes/system.yaml`.
+Public header: `include/vi/class/system.h`.  
+Internal header: `include/vii/class/system.h`.  
+Library body: `src/lib/system.c`.  
+YAML: `tools/codegen/src/classes/system.yaml`.  
+Messages: `proto/vedam/system.proto`.
 
-Application code calls `vedam_init` / `vedam_deinit` and then the public System verbs. It does not call `vii_system_create` itself.
+An application calls `vedam_init` and `vedam_deinit`, then the public System verbs. It does not call create itself.
 
 ---
 
 ## 8.1 Purpose
 
-One System object exists per process. Create builds it, starts the selected transport listeners, and leaves the node ready for get and subscribe. Delete stops listeners and frees the object. Get and subscribe are how an account owner or a local helper learns health without becoming a landlord over other subjects’ data.
+One System object exists per process. `key` is empty and `key_len` is 0.
 
-System create does **not** enrol the device in a training swarm, does **not** turn on a ranking service, and does **not** make sharing the default.
+`vedam_init` chooses the three links, starts their listeners, and runs an internal create. That create returns success. It does not yet store node class or version. Get therefore must not be treated as proof of a stored version until the library body is written. Delete is internal and, today, returns success without tearing the listeners down by itself. `vedam_deinit` stops the listeners.
+
+System does not enrol the device in a training swarm, does not turn on a ranking service, and does not make sharing the default.
 
 ---
 
@@ -31,112 +34,118 @@ System create does **not** enrol the device in a training swarm, does **not** tu
 
 ### Node class
 
-`vi_system_node_class_t` names the role of this process. It is chosen at create and is read-only afterward.
+`vi_system_node_class_t` in C, and `SystemNodeClass` in the message file, name the role of this process.
 
-| Enumerator | Meaning |
-|------------|---------|
-| Unspecified | No role has been chosen (invalid for a live node). |
-| A | Archive. Keeps a full copy of agreed history. |
-| B | Full check of agreed history. |
-| C | Light operator. Default for this process in the first slice. |
-| D | Small gateway. |
-| E | Thin client. |
+| Value | Name | Meaning |
+|-------|------|---------|
+| 0 | Unspecified | No role has been chosen. |
+| 1 | A | Archive. Keeps a full copy of agreed history. |
+| 2 | B | Full check of agreed history. |
+| 3 | C | Light operator. Default for this process. |
+| 4 | D | Small gateway. |
+| 5 | E | Thin client. |
 
 ### Operational state
 
-`vi_system_state_e` sits inside `vi_system_state_t` (with reserved room for later fields).
+`vi_system_state_e` names the operational state. `vi_system_state_t` holds that value plus reserved room. A C get of `SYSTEM_STATE` requires the caller to set `value.ptr` to storage they own. On the wire the same attribute is `Attr.value.blob`. A caller in another language treats those bytes as opaque until a named field replaces them.
 
-| State | Meaning |
-|-------|---------|
-| Starting | Create has begun; get is not ready. |
-| Ready | Transports are up; get and subscribe are allowed. |
-| Degraded | The process is up with a reduced set of transports. |
-| Draining | The process is finishing work and will stop. |
-| Dead | The process has stopped; get returns uninitialized. |
+| Value | Name | Meaning |
+|-------|------|---------|
+| 0 | Unspecified | State has not been set. |
+| 1 | Starting | Create has started. Get is not ready. |
+| 2 | Ready | The doors are up. Get and subscribe are allowed. |
+| 3 | Degraded | The process is up with a reduced set of doors. |
+| 4 | Draining | The process is finishing work and will stop. |
+| 5 | Dead | The process has stopped. Get returns uninitialized. |
 
 ---
 
 ## 8.3 Attributes
 
-Callers pass a list of `{ id, value }`. For state attributes the caller supplies storage through `value.ptr`. Duplicate ids keep the last entry.
+The enum `SystemAttr` is the contract. C headers use the same numbers with the prefix `VI_SYSTEM_ATTR_`.
 
-### Public attributes
-
-| Id | Name | Type | Flags | Meaning |
+| Id | Enum | Type | Flags | Meaning |
 |----|------|------|-------|---------|
-| 1 | `NODE_CLASS` | `vi_system_node_class_t` | Read-only | Role of this process. |
-| 2 | `PROTOCOL_VERSION` | `v_version_t` | Read-only, subscribable | Agreed message version (this era: 0.1). |
-| 3 | `SYSTEM_STATE` | `vi_system_state_t` | Read-only, subscribable | Starting, ready, degraded, draining, or dead. |
+| 1 | `SYSTEM_ATTR_NODE_CLASS` | Node class, as `value.s32` | Read only | Role of this process. |
+| 2 | `SYSTEM_ATTR_PROTOCOL_VERSION` | `value.version` | Read only, subscribable | Agreed message version. This era reports major 0 and minor 1 when a body stores it. |
+| 3 | `SYSTEM_ATTR_SYSTEM_STATE` | Caller pointer in C; `value.blob` on the wire | Read only, subscribable | Starting, ready, degraded, draining, or dead. |
+| 4 | `SYSTEM_ATTR_RELEASE_COMMIT` | `value.text` | Read only | Commit of the running build, for a person to read. Not part of the vertical id. |
 
-### Internal attributes (create-only)
+The three doors are not System attributes. The node keeps them by link index: in-process, same machine, and network.
 
-| Id | Name | Type | Meaning |
-|----|------|------|---------|
-| 4 | `LOCAL_TRANSPORT` | `v_transport_t *` | In-process ops (same thread as the caller). |
-| 5 | `IPC_TRANSPORT` | `v_transport_t *` | Local IPC ops (POSIX message queue by default; Unix-socket HTTP is the other option). |
-| 7 | `REMOTE_TRANSPORT` | `v_transport_t *` | Remote ops (gRPC-style HTTP on TCP in this slice; Connect may replace ops later). |
-
-Internal ids never appear in the public header. An external-origin get of those ids fails as not supported.
-
-On create, `NODE_CLASS` is **mandatory**. Missing it returns mandatory-attribute-missing.
+An external get of an id that is not public fails. The failure is written in that attribute’s status slot. The walk continues.
 
 ---
 
 ## 8.4 Verbs
 
-| Verb | Public header? | Origin | Behaviour |
-|------|----------------|--------|-----------|
-| **create** | No | Internal only | Allocate the singleton, copy transport slots, open and listen, set state to ready. |
-| **get** | Yes | External or internal | Fill values for the listed public (or, when internal, full) attribute ids. |
-| **set** | No | Internal only | Reserved for hot fields later; external set is not implemented. |
-| **delete** | No | Internal only | Stop transports and free the singleton (`vedam_deinit`). |
-| **subscribe** | Yes | Either | Watch attributes marked subscribable. |
-| **unsubscribe** | Yes | Either | Stop watches for the same caller; empty list clears all. |
-| **publish** | No | Internal | Fan out changed attributes on transports that hold subscribers. |
+| Verb | Public C header | Message file | What happens now |
+|------|-----------------|--------------|------------------|
+| **create** | No | No | Internal. `vedam_init` calls it. The body returns success. |
+| **get** | Yes | Yes, one reply | Fills the listed ids when a body exists. Today the body returns success and does not write values. |
+| **set** | No | No | Internal. External set is rejected when the attribute is read only. |
+| **delete** | No | No | Internal. |
+| **subscribe** | Yes | Yes, one reply | Registers a watch for subscribable ids. Returns once. |
+| **unsubscribe** | Yes | Yes, one reply | Stops those watches. An empty list stops every watch for that caller. Returns once. |
+| **notify** | No | Yes, a stream | Later changes for a registered watch. The node does not push the stream yet. |
 
-Older drafts used the word **read**. The generated API uses **get**.
+```mermaid
+sequenceDiagram
+  participant App
+  participant VI as vi_system_get
+  participant Disp as vta_dispatch
+  participant Lock as Wait-Die
+  participant Via as via checks
+  participant Lib as vlib_system_get
+
+  App->>VI: vi_msg_t with SystemAttr ids
+  VI->>Disp: same pointer, class index, latest major and minor
+  Disp->>Lock: pin the System object
+  Lock->>Via: under the lock
+  Via->>Lib: after every attribute is checked
+  Lib-->>App: success written into status_list
+```
 
 ---
 
-## 8.5 Layer walk for this class
+## 8.5 Layer walk
 
-### VI — public surface
+### Public surface
 
-`vi_system_get`, `vi_system_subscribe`, and `vi_system_unsubscribe` live in `include/vi/class/system.h`. Applications include only `vi/`.
+`vi_system_get`, `vi_system_subscribe`, and `vi_system_unsubscribe` take `vi_msg_t *`. They set `key` to empty because System has one object. They do not pack.
 
-### VA — thin forward
+### Thin forward
 
-Generated `src/va/system.c` calls the matching `vii_*` with `V_ORIGIN_EXTERNAL`.
+`src/va/system.c` builds a small call record: class, external origin, verb, latest major and minor, and the caller’s `vi_msg_t`. It calls `vta_dispatch`. There is no second hop through a local transport helper.
 
-### VII / VIA — contract
+### Contract
 
-Generated `src/via/system.c` implements `vii_system_*`. It collapses duplicate attribute ids, rejects unknown ids, rejects internal ids for external origin, enforces flags (read-only, create-only, subscribable, mandatory-on-create), checks pointer requirements for state gets, then calls `vlib_system_*`.
+`src/via/system.c` requires `attr_list` and `status_list` together when the count is not zero. It checks every attribute, writes `status_list[i]`, and remembers the first failure. Checks cover unknown ids, attributes hidden from external callers, read-only on set or create, create-only, set-only, and subscribe on an id that is not subscribable. A get of the state attribute requires `value.ptr`. Then it calls `vlib_system_*`.
 
-### VLIB — object state
+### Library
 
-`src/lib/system.c` owns `vedam_t`: node class, operational state, three transport slots and their address strings. Create starts each non-null ops table (`open` then `listen`). Get fills from that structure. Publish fans out to local, IPC, and remote publish hooks. Delete stops transports and frees the node.
+`vlib_system_*` returns success. It does not store node class, version, state, or the release commit yet. It does not keep a subscriber list. Those bodies are the next slice, not a hidden behaviour of this one.
 
 ### Init
 
-`vedam_init` in `src/core/init.c` builds the three transport attribute values from environment defaults, calls `vii_system_create` with internal origin, and leaves the node ready. `vedam_deinit` calls delete.
+`vedam_init` allocates the node, fills the verb table, builds the UUID hash, selects the three operations tables, listens, and runs internal create. `vedam_deinit` runs internal delete and closes the listeners. Defaults:
 
-### Transports (VTA)
+| Variable | When unset |
+|----------|------------|
+| `VEDAM_TRANSPORT_LOCAL` | `inproc` |
+| `VEDAM_TRANSPORT_IPC` | `mq`, queue name `/vedam.<pid>` |
+| `VEDAM_TRANSPORT_IPC` as `grpc_uds` | `/tmp/vedamd.<pid>.sock` |
+| `VEDAM_TRANSPORT_REMOTE` | temporary HTTP, `127.0.0.1:0` |
 
-| Slot | Default ops | Default address |
-|------|-------------|-----------------|
-| Local | In-process | (none; same thread) |
-| IPC | POSIX message queue | `/vedam.system` |
-| Remote | Temporary gRPC-style HTTP/1.1 + protobuf | `0.0.0.0:50051` |
+The process id and the ephemeral port keep two nodes on one machine from sharing a name.
 
-Selection is by environment today (`VEDAM_TRANSPORT_*`). Compile-time defconfig gates come next. Official gRPC C++ and Connect/QUIC are planned replacements for the temporary HTTP path; Connect listen already succeeds as a stub.
+### Locks
 
-### Platform
+The dispatch takes a Wait-Die lock on the System object for the duration of the library call. A hit does not allocate. The lock is not held across a queue write or a network wait. Attribute locks are a dense array by id after the catalog check.
 
-Libraries and transports call `vplatform_*` (memory, string, thread, sleep, message queue, env, process). Operating-system headers stay under `src/platform/posix/`.
+### Wire
 
-### Wire (VTI)
-
-Generated protobuf types under `include/vti/` encode get requests and responses for the temporary HTTP path and the message-queue pack helpers. Application install trees do not ship these headers.
+The queue and the temporary HTTP path share one codec. It encodes `vi_msg_t` into a buffer owned by the connection, and decodes into a `vi_msg_t` the peer owns. The five-byte length prefix sits at the front of that buffer. It is not a second copy of the body.
 
 ---
 
@@ -146,20 +155,19 @@ Generated protobuf types under `include/vti/` encode get requests and responses 
 sequenceDiagram
   participant Host as App or vedamd
   participant Init as vedam_init
-  participant VII as vii_system_create
-  participant Lib as vlib_system
-  participant Rx as Transport listeners
+  participant Rx as Three listeners
+  participant Lib as vlib_system_create
 
   Host->>Init: vedam_init
-  Init->>VII: create with node class and transports
-  VII->>Lib: checks then create
-  Lib->>Rx: open and listen
-  Lib-->>Host: ready
-  Host->>Host: vi_system_get / subscribe
+  Init->>Init: verb table and UUID hash
+  Init->>Rx: listen on each link
+  Init->>Lib: internal create
+  Lib-->>Host: success
+  Host->>Host: vi_system_get
   Host->>Init: vedam_deinit
 ```
 
-A second process on the same machine may attach over IPC or remote without calling create. Native mobile and **vedamd** call `vedam_init` in-process.
+A second process may attach over the queue or over HTTP without calling create. The phone app and **vedamd** call `vedam_init` in their own process.
 
 ---
 
@@ -167,11 +175,12 @@ A second process on the same machine may attach over IPC or remote without calli
 
 | Concern | Default in this slice |
 |---------|------------------------|
-| Ranking | Absent (no API) |
-| Compute swarm | Off (no enrolment on create) |
-| Sharing | Not a create default |
-| Encryption / quiet-hours / upgrade consent | Specified for later attributes; not yet all present on System |
-| Offline | Create and local get succeed without the public internet |
+| Ranking | Absent. There is no such attribute. |
+| Compute swarm | Off. Create does not enrol the device. |
+| Sharing | Not turned on by create. |
+| Remote listen | Loopback, not every network interface. |
+| Encryption, quiet hours, upgrade consent | Later attributes. Not on System yet. |
+| Offline | Local get does not need the public internet. |
 
 ---
 

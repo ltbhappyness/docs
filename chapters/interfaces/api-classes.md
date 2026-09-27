@@ -1,24 +1,43 @@
 ---
 type: Chapter
 title: "API classes"
-description: "remaining generated classes after System; Event, Ops, and later verticals."
+description: "Verticals in the tree today, then later classes that are only a map."
 tags: [design-spec]
 timestamp: 2026-09-22T00:00:00Z
 ---
 
 # 10. API classes
 
-Generated public headers will live under `include/vi/class/`. **System** is specified in full in [System class](./system.md). This chapter lists the rest so the map stays visible while their YAML and libraries are still ahead.
+[System](./system.md) is specified in full. This chapter names the other verticals the generator already emits, then the ones that are still only a map.
 
-Subscribe on every class is an Event stream (or a filter on the Event class) when Event ships. **Logging is the Event class**, never a file path attribute.
+The five verticals in the tree today are system, identity, storage, security, and wasm. Each has a public header under `include/vi/class/`, a message file under `proto/vedam/`, and a library body that returns success. Identity and storage are addressed by `key`. System, security, and wasm have one object and an empty key.
 
-Each new class should gain a dedicated chapter (or an expanded section here) using the template in [Proto layout and codegen](./proto-codegen.md#76-per-class-documentation-pattern): types, attributes, verbs, and the layer walk.
+Subscribe on each of them registers a watch and returns once. Notify, in the message file, is the stream of later changes. The node does not push that stream yet. Logging is not a file path on System.
+
+A later vertical should gain a section here, or its own chapter, in the shape of [Proto layout and codegen](./proto-codegen.md): purpose, types, attribute enum, verbs, and the walk from the public call to the library.
+
+The sections from wallet onward describe work that is **not** in this tree. They stay so the map is visible. They are not a claim that those headers exist.
+
+---
+
+## 10.0 Verticals in this tree
+
+| Vertical | Key | Public attributes | Role in this generation |
+|----------|-----|-------------------|-------------------------|
+| **identity** | Required | `IDENTITY_ATTR_KIND`, `IDENTITY_ATTR_STATE` | A keyed object. Kind is read only. State is read only and subscribable. |
+| **storage** | Required | `STORAGE_ATTR_SIZE`, `STORAGE_ATTR_STATE` | A keyed object. Size is read only. State is read only and subscribable. |
+| **security** | Empty | `SECURITY_ATTR_PROFILE`, `SECURITY_ATTR_STATE` | One object. Profile is read only. State is read only and subscribable. |
+| **wasm** | Empty | `WASM_ATTR_ENGINE_STATE`, `WASM_ATTR_WORKERS` | Configuration only. No engine is linked. Engine state is read only and subscribable. Workers is read only. |
+
+The longer identity story in the next section is the account-owner design. It is not what `identity.yaml` stores today.
 
 ---
 
 ## 10.1 Identity
 
-Register root Subject (human: nullifier gate; machine: attestation), device delegations, app-scoped pseudonyms, revocations. **Use** is get/set with a pseudonym; **register** is rare.
+The shipping identity vertical is the table in section 10.0. The paragraphs below are the later account-owner design. They are not attributes in `identity.yaml`.
+
+Register root Subject (human: nullifier gate; machine: attestation), device delegations, app-scoped pseudonyms, revocations. **Use** is get and set with a pseudonym. **Register** is rare.
 
 Create: only for truly new chapter / extra subject objects. Device stub may exist after System create.
 

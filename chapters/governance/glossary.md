@@ -66,7 +66,7 @@ Project-internal terms, kept in one place to avoid drift. HLA subset: [Terminolo
 
 ## G
 
-**Generated API** — C headers from `.proto` via `protoc-gen-vedam-api`: `types.h`, `api/<class>.h`, umbrella `api.h`. Same messages on in-process, MQ, shm, gRPC, libp2p.
+**Generated API** — C headers from YAML under `tools/codegen/`: `vi/types.h`, `vi/class/<vertical>.h`, and `vi_msg_t`. The same attribute ids appear as enums in `proto/vedam/`. Application authors do not choose a transport in the header.
 
 ---
 
@@ -160,7 +160,7 @@ Project-internal terms, kept in one place to avoid drift. HLA subset: [Terminolo
 
 ## T
 
-**Transport** — vtable: in-process, MQ, shm, gRPC, libp2p; stream + load balance.
+**Transport** — a descriptor on one of three links (in-process, same machine, network). Call carries the verb, including notify. A later overlay dials through the same descriptor.
 
 ---
 

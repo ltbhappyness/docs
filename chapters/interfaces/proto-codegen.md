@@ -1,133 +1,195 @@
 ---
 type: Chapter
 title: "Proto layout and codegen"
-description: "YAML source of truth; Jinja templates; generated VI/VII/VIA/VA and protobuf; transport independence."
+description: "YAML source of truth; Jinja templates; generated C headers and the published messages."
 tags: [design-spec]
-timestamp: 2026-09-22T00:00:00Z
+timestamp: 2026-09-27T00:00:00Z
 ---
 
 # 7. Proto layout and codegen
 
-Public C headers are **generated**. Hand-editing installed headers under `include/vi/` as the contract is a spec violation. Application authors include `vi/types.h`, `vi/vedam.h`, and the class headers they need. They do not select a transport in those headers.
+Public C headers and the published messages are **generated**. Hand-editing `include/vi/` or `proto/vedam/` as the contract is a spec violation. An application includes `vi/types.h`, `vi/vedam.h`, and the vertical headers it needs. Those headers do not name a transport.
 
-This chapter specifies the **contract and the generator**. It does not freeze every future class attribute before that class’s YAML exists.
+This chapter is the contract and the generator for the northbound node that ships now. A later vertical is a new YAML file, not a new template.
 
----
-
-## 7.1 Source of truth
-
-For the C node, the source of truth is **YAML under `vedam/tools/codegen/`**, checked by a schema, then rendered by Jinja templates.
-
-| Path | Role |
-|------|------|
-| `tools/codegen/schema/vedam.yaml` | Allowed shapes for types and classes |
-| `tools/codegen/src/types.yaml` | Shared status codes, primitive aliases, the class registry |
-| `tools/codegen/src/classes/<name>.yaml` | One file per API class (System is first) |
-| `tools/codegen/templates/c/*.j2` | Headers and thin C bodies |
-| `tools/codegen/templates/proto/*.j2` | Wire `.proto` files |
-
-Protobuf remains the **wire encoding**. Generated `.proto` files live under `generated/proto/` in the C tree. The public **[vedam-interface](https://github.com/ltbhappyness/vedam-interface)** repository is the copy application authors clone when a message change is ready for them. The C tree does not wait on that publish to build. After an interface release lands, both trees should name the same bytes.
-
-```
-tools/codegen/src/
-  types.yaml
-  classes/system.yaml
-generated/proto/vedam/
-  types.proto
-  system.proto
-include/vi/…          # public, installed
-include/vii/…         # full API, not installed
-src/va/, src/via/     # generated thin bodies
-include/vti/…         # protoc C++ for codecs (compile only)
-```
-
-Each class YAML lists enums, structs, verbs (public or internal), and attributes with ids, types, visibility, and flags. Adding a class is a new YAML file plus a row in `types.yaml`, not a fork of the System templates.
+**Protobuf** here means a compact, typed encoding of a message that another language can compile. Vedam uses it for the bytes that leave the process. The C call inside the process does not encode those bytes.
 
 ---
 
-## 7.2 Codegen pipeline
+## 7.1 One call
 
-CMake runs `python3 tools/codegen/generate.py` as a custom command when YAML or templates change. The script validates, then writes into the source tree (committed outputs stay in sync with a clean configure).
+Every public verb takes one `vi_msg_t` and writes the reply into that same object.
+
+| Field | What the caller sets | What comes back |
+|-------|----------------------|-----------------|
+| `key` | Object key, or empty when the vertical has one object | Unchanged on a local call. A peer copies the key into its own buffer. |
+| `key_len` | Length of `key`, or 0 | Same rule as `key` |
+| `attr_count` | How many attributes are in the list | May shrink to the number the peer understood |
+| `attr_list` | Each entry’s id, and a value when the verb writes | Filled values for a get |
+| `status_list` | One slot per attribute, same length as `attr_list` | One result per attribute |
+
+The node visits every attribute. It does not stop at the first failure. The function’s return value is success only when every slot succeeded. Otherwise it is the first failure. Each slot still holds its own result.
+
+Duplicate ids in one list keep the **last** entry before the checks run.
+
+The same shape is the published `Message` in `proto/vedam/types.proto`. `key` is the object key. `attrs` is the list. Each `Attr` has an id, a value, and a status. `status` on the message is the overall result. `Attr.id` is a number. The caller sets it to a value from that vertical’s attribute enum (`SystemAttr`, `IdentityAttr`, and so on). The enum is the contract. A comment is not a substitute for the name.
 
 ```mermaid
 flowchart LR
-  Y[YAML classes and types] --> S[schema check]
-  S --> J[Jinja per kind]
+  subgraph caller [Caller memory]
+    M[vi_msg_t]
+    A[attr_list]
+    S[status_list]
+  end
+  M --> A
+  M --> S
+  subgraph local [Same process]
+    D[vta_dispatch]
+  end
+  M --> D
+  D --> M
+```
+
+A queue or a network call encodes that object once into a buffer the connection already owns, and writes the reply back into the same object. The other process builds its own `vi_msg_t`. The caller’s address is not sent.
+
+---
+
+## 7.2 Source of truth
+
+YAML under `vedam/tools/codegen/` is checked, then rendered by Jinja.
+
+| Path | Role |
+|------|------|
+| `tools/codegen/schema/vedam.yaml` | Allowed shapes |
+| `tools/codegen/src/types.yaml` | Status codes and the vertical registry |
+| `tools/codegen/src/classes/<name>.yaml` | One vertical: key rule, enums, verbs, attributes |
+| `tools/codegen/templates/c/*.j2` | C headers and thin bodies |
+| `tools/codegen/templates/cxx/codec.cc.j2` | Encode and decode used by the queue and by HTTP |
+| `tools/codegen/templates/proto/*.j2` | Published messages |
+
+The generator writes `proto/vedam/`. That directory is the `proto/` submodule, published as [vedam-interface](https://github.com/ltbhappyness/vedam-interface). The C tree compiles those files. It does not keep a second copy under `generated/proto/`.
+
+Each class file lists:
+
+- whether the vertical has one object (`singleton`) or many objects addressed by `key`
+- `uuid_lines`: major, minor, and the commit that opened that line
+- enums and structs that belong to that vertical
+- verbs, each public or internal
+- attributes: a stable id, a type, visibility, and flags
+
+Adding a vertical is a new YAML file plus a row in `types.yaml`.
+
+---
+
+## 7.3 What the generator writes
+
+CMake runs `python3 tools/codegen/generate.py` when YAML or templates change. The script checks the schema, then writes into the source tree.
+
+```mermaid
+flowchart TB
+  Y[types.yaml and classes/*.yaml] --> S[schema check]
+  S --> J[one Jinja template per kind]
   J --> VI[include/vi]
   J --> VII[include/vii]
   J --> VA[src/va]
   J --> VIA[src/via]
-  J --> P[generated/proto]
-  P --> PB[protoc to include/vti]
+  J --> DISP[src/vta/dispatch.c]
+  J --> CODEC[src/vta/codec.cc]
+  J --> P[proto/vedam]
+  P --> PB[protoc into include/vti]
 ```
 
-| Output | Content |
-|--------|---------|
-| `include/vi/types.h` | Status codes, attribute value union, shared types |
-| `include/vi/vedam.h` | `vedam_init` / `vedam_deinit` |
-| `include/vi/class/<name>.h` | Public enums, structs, attribute ids, public verbs |
-| `include/vii/types.h` | Origin, class id, verb id, `v_transport_t` / ops |
-| `include/vii/class/<name>.h` | Full attribute ids and internal verbs |
-| `src/va/<name>.c` | Thin `vi_*` → `vii_*` with external origin |
-| `src/via/<name>.c` | Contract checks then `vlib_*` |
-| `src/via/meta.h` | Flag and type-kind tables for VIA |
-| `generated/proto/…` | Messages for get / subscribe style RPCs |
-| `include/vti/…` | C++ protobuf sources for pack and HTTP paths |
+| Output | What an author finds there |
+|--------|----------------------------|
+| `include/vi/types.h` | Status codes, the value union, `vi_msg_t`, and the Vedam namespace id |
+| `include/vi/vedam.h` | `vedam_init` and `vedam_deinit` |
+| `include/vi/class/<name>.h` | Public enums, public attribute ids, the latest 16-byte id, and `vi_<name>_get`, `subscribe`, `unsubscribe` |
+| `include/vii/class/<name>.h` | Every supported id line, indexed by major and minor, and the internal verbs |
+| `src/va/<name>.c` | The public verb. It stores the caller’s `vi_msg_t` on a local call and dispatches. |
+| `src/via/<name>.c` | Checks, then `vlib_<name>_*` |
+| `src/vta/dispatch.c` | A table of class and verb, filled at init |
+| `src/vta/codec.cc` | One encode and one decode for the queue and for HTTP |
+| `proto/vedam/types.proto` | `Message`, `Attr`, `Status`, and the namespace id |
+| `proto/vedam/<name>.proto` | That vertical’s enums, its attribute enum, and Get, Subscribe, Notify, Unsubscribe |
 
-Headers carry a generated banner and Vedam copyright. Function and type comments use Doxygen `@brief` so editors and later doc tools can read them.
-
----
-
-## 7.3 Verbs, attributes, and status
-
-Every object is addressed by **class** and an **attribute list**. Callers pass an array of `{ id, value }`. Duplicate ids collapse to the **last** entry before checks run.
-
-| Verb | Meaning in this era |
-|------|---------------------|
-| **create** | Bring up the object (often internal; System create is not in the public header) |
-| **get** | Fill values for the attribute ids in the list (replaces older “read” wording) |
-| **set** | Patch attributes that allow set |
-| **delete** | Tear down the object |
-| **subscribe** | Watch attributes marked subscribable |
-| **unsubscribe** | Stop watches for the same caller |
-| **publish** | Push changed attributes to current subscribers (internal) |
-
-Attribute **flags** (VIA) include mandatory-on-create, create-only, read-only, set-only, key, and subscribable. Public visibility hides internal ids from VI headers and from external-origin checks.
-
-**Status** values are typed in `types.yaml` (success, uninitialized, not implemented, unknown attribute indexed from a base, invalid value indexed from a base, and so on). They are not a pile of raw `errno` values.
+Install ships `include/vi` only.
 
 ---
 
-## 7.4 Transport independence
+## 7.4 Verbs
 
-`vedam_init` (or a later bind) selects transport **ops tables**. Class functions stay:
+| Verb | Who calls it | What it does |
+|------|----------------|--------------|
+| **get** | Public | Fill values for the ids in the list. |
+| **subscribe** | Public | Register a watch for ids that allow subscribe. The call returns once. It does not stream. |
+| **unsubscribe** | Public | Stop watches for those ids. An empty list stops every watch for that caller. The call returns once. |
+| **notify** | The node, toward a registered watcher | The stream of later changes. It is a public message so another language can wait on it. The C header does not offer it as something an application calls to push. |
+| **create** | Internal | Bring the object up. Not in the public header in this generation. |
+| **set** | Internal | Change attributes that allow set. Not in the public header in this generation. |
+| **delete** | Internal | Tear the object down. Not in the public header in this generation. |
 
-```
-v_status_t vi_<class>_<verb>(…);
-v_status_t vii_<class>_<verb>(v_origin_t origin, …);
+```mermaid
+sequenceDiagram
+  participant App
+  participant Node
+  App->>Node: Subscribe with attribute ids
+  Node-->>App: one Message, one status per id
+  Note over App,Node: The watch is registered. The call has returned.
+  Node-->>App: Notify stream, later, when a value changes
+  App->>Node: Unsubscribe
+  Node-->>App: one Message
 ```
 
-There is no `grpc_` prefix in the public class API. Adapters under `src/vta/` fill `v_transport_ops_t` (open, close, connect, listen, call, subscribe, unsubscribe, publish).
-
-Environment variables choose which ops and addresses to use at init. Compile-time defconfig macros will later gate optional sources; today every transport stub still builds. See [Transport and datastore](./transport-datastore.md) and the implementation `config/README.md`.
+The node does not yet push that Notify stream. Library bodies return success and do not store subscribers. The message file still names Notify so the contract is visible before the delivery exists.
 
 ---
 
-## 7.5 Versioning
+## 7.5 Attributes and flags
 
-`PROTOCOL_VERSION` on System reports the agreed message era for the node (this era: major 0, minor 1). Wire packages carry proto package version. Overlap windows for rolling upgrade: [Engineering](../engineering/engineering.md). Dual decoders for N and N−1 remain the direction when a second era ships.
+An attribute id is a small integer that never changes meaning. The public header has `VI_<VERTICAL>_ATTR_<NAME>`. The message file has the same number as `<Vertical>Attr.<VERTICAL>_ATTR_<NAME>`. A caller in another language uses the enum. A caller in C uses the header constant. They are the same number.
+
+Flags on a public attribute, in plain language:
+
+| Flag | What a caller may do |
+|------|----------------------|
+| Read only | Do not send a new value. A get fills it. |
+| Subscribable | Subscribe and Unsubscribe may name this id. Notify may carry it later. |
+| Create only | Only create may write it. |
+| Set only | Set may write it. |
+| Create and set | Create and set may write it. |
+| Mandatory on create | Create must include this id. |
+| Key | This id is the object key. `Message.key` carries the same bytes. |
+
+Internal attributes stay out of `include/vi` and out of the published message file. An external call that names one is rejected.
 
 ---
 
-## 7.6 Per-class documentation pattern
+## 7.6 Identity of a vertical
 
-Each class gets a Part III chapter (or section) that follows the same template:
+Vedam’s own verticals form a 16-byte id as UUID version 5. UUID version 5 is a standard way to mix a fixed namespace and a name into 16 bytes that do not change if the name does not change. The namespace is itself version 5 of the DNS name `vedam.net`. The name is `vertical/major/minor/commit`. The commit is the constant that opened that major and minor. A later line does not rewrite it.
 
-1. Purpose and singleton rules
-2. Types (enums and structs)
-3. Attributes (id, type, public or internal, flags)
-4. Verbs (who may call; public header or not)
-5. Layer walk (VI → VA → VII → VIA → VLIB → transports)
-6. Mission defaults that this class must not violate
+`types.proto` stores that namespace as the file option `namespace_uuid`. Each vertical file stores its own id as the service option `vertical_uuid`. The public C header publishes the latest 16 bytes as `vi_<name>_uuid`. Older supported lines stay in the internal header, indexed by major and minor, until that line is removed.
 
-**System** is the first filled chapter: [System class](./system.md). Remaining classes stay listed in [API classes](./api-classes.md) until their YAML lands.
+A local call does not carry those 16 bytes. It uses the class index and the latest major and minor. A queue or HTTP message carries the 16 bytes once, at the edge. The node hashes them at start-up into class, major, and minor.
+
+The commit of a running build is the System attribute `RELEASE_COMMIT`. It is for a person to read. It is not part of the id.
+
+Another author may use the same recipe with their own domain, or may publish 16 bytes chosen another way. The node only rejects an id that is already loaded.
+
+---
+
+## 7.7 Status
+
+Status codes live in `types.yaml` and in `Message`. Each attribute has `Attr.status`. The message has `status` for the overall result. `vedam_status` on the status message carries the library code, including the indexed forms that say which attribute failed. A codec must not collapse every failure into one generic code.
+
+---
+
+## 7.8 Why the generator is shaped this way
+
+One template per kind means the thousandth vertical does not grow a hand-written switch or a hand-written message file. The hot path after init is an index: class, then verb. The attribute enum is data, so an application does not scrape a comment for a number. The in-process path does not encode, because the caller already holds the only copy of the list. Encoding happens once, at the door that leaves the process.
+
+---
+
+## 7.9 Per-vertical chapters
+
+A chapter for one vertical states purpose, whether it has one object, its types, its attribute enum, its verbs, and the walk from the public header to the library. [System class](./system.md) is that chapter for System. [API classes](./api-classes.md) names the other verticals that exist in this tree, and the ones that do not yet.
