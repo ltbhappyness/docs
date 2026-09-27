@@ -3,9 +3,10 @@ type: Chapter
 title: "API classes"
 description: "Verticals in the tree today, then later classes that are only a map."
 tags: [design-spec]
+status: draft
 generated:
   by: process:ltbh-vedam
-  at: 2026-09-22T00:00:00Z
+  at: 2026-09-27T13:40:00Z
 ---
 
 # 10. API classes

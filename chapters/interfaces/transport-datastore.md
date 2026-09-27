@@ -1,7 +1,7 @@
 ---
 type: Chapter
 title: "Transport and datastore"
-description: "socket-shaped transport descriptors; git datastore; offload skeleton."
+description: "How a call moves in-process, on a queue, and over temporary HTTP, and where git sits later."
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
