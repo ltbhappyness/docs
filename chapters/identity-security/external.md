@@ -5,14 +5,14 @@ description: "account-owner view of identity, grants, threats, acceptable use, a
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-09-11T00:00:00Z
+  at: 2026-11-18T22:35:00+05:30
 ---
 
 # 12. Identity, security, and terms
 
 This part is the **outside** of identity: what an account owner is promised, what they consent to, and what they can see. Internals (nullifier math, git recipe) live in [Module inventory](../modules/inventory.md) cluster D. The [bill of rights](../governance/bill-of-rights.md) is the moral pairing; this chapter is operational terms.
 
-**Account owner** is the public term. **Master** is the short noun. **Isha** is not repeated here.
+The public term for the party who holds the account is the Vedam owner.
 
 ---
 

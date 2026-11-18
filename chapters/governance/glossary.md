@@ -5,7 +5,7 @@ description: "project-internal terms in one place."
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-11-18T21:10:00+05:30
+  at: 2026-11-18T22:35:00+05:30
 ---
 
 # 16. Glossary
@@ -34,7 +34,7 @@ Project-internal terms, kept in one place to avoid drift. The node’s words are
 
 **Chapter** — per-subject, single-writer, signed git repo; identity container and content namespace.
 
-**Class A / B / C / D / E** — archivist / full validator / light / IoT-gateway / thin client. Class E **uses** NN; it does not run it.
+**Class A / B / C / D / E** — a letter in `.config` that selects how the libraries are built. A is the full host libraries, all ordinary links, and the daemon. It is not a different call shape. B is the same host shape as A. It is not a second protocol. C is the default host: a queue, TCP, and the local socket, plus the daemon. It does not include the compiler path. D is the host libraries with the byte links off. It does not listen on a queue or a socket. E is a WebAssembly build of the libraries, with no daemon, no lock, and no byte links. It does not run on the machine that merely hosts the page.
 
 **Collective** — overlay compute group (vedam-ccl). Create is opt-in; not implied by System create.
 
@@ -88,8 +88,6 @@ Project-internal terms, kept in one place to avoid drift. The node’s words are
 
 **Island** — overlay partition / neighbourhood cluster (geometry + discovery).
 
-**Isha** (pronounced Ee-Sha) — lord, master, owner. Used **once** in [Mission](../foundations/mission.md) and once here. Not a protocol identifier.
-
 ---
 
 ## L
@@ -97,12 +95,6 @@ Project-internal terms, kept in one place to avoid drift. The node’s words are
 **L0 / L1 / L2 / L3** — global Merkle-of-Merkles / shard / chapter / IoT anchor layers.
 
 **Local-first** — System create yields a working offline instance; overlay is enhancement.
-
----
-
-## M
-
-**Master** — short noun for the **account owner**. Never used for replication or sequencers.
 
 ---
 

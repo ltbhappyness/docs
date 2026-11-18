@@ -9,7 +9,7 @@ sources:
     title: Wound/Wait deadlock-proof mutex design
 generated:
   by: process:ltbh-vedam
-  at: 2026-11-18T21:10:00+05:30
+  at: 2026-11-18T22:35:00+05:30
 ---
 
 # 2. Design
@@ -1021,7 +1021,7 @@ The committed `.config` is letter C. The other letters exist as sample files so 
 | D | off | off | off | off | on | on |
 | E | off | off | off | off | off | off |
 
-A and B match C on every filling and on the lock. They differ in which optional rows the compiler includes. Those rows are named in [Interfaces](../interfaces/interfaces.md), not here. D keeps the lock and the daemon and compiles no byte filling, so init opens only the local listener and the log line is `ipc=0 remote=0`. E compiles no byte filling, no Wait-Die, and no daemon. Its product is the wasm module, and dispatch uses the depth counter.
+A and B match C on every filling and on the lock. A and B compile the same optional rows. Letter C leaves the plugin row out. D keeps the lock and the daemon and compiles no byte filling, so init opens only the local listener and the log line is `ipc=0 remote=0`. E compiles no byte filling, no Wait-Die, and no daemon. Its product is the wasm module, and dispatch uses the depth counter.
 
 On A, B, and C the queue flag and the Unix-domain flag are both on. Slot 1 still has one table. Init assigns the queue first, and the Unix-domain table is not installed in that slot. The HTTP helpers are compiled, because either flag turns them on, and the TCP operations table is installed in slot 2. A process built from letter C therefore listens on a POSIX queue and on `127.0.0.1:0`. It does not also listen on `/tmp/vedamd.<pid>.sock`. That path is what slot 1 uses only when the queue flag is off and the Unix-domain flag is on. Compiling a filling and listening with it are two different facts. The table above is the flags. Section 2.6.3 is which flag wins the slot.
 

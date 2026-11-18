@@ -6,7 +6,7 @@ tags: [design-spec]
 status: draft
 generated:
   by: process:ltbh-vedam
-  at: 2026-09-27T13:40:00Z
+  at: 2026-11-18T22:35:00+05:30
 ---
 
 # 14. Open questions
@@ -27,7 +27,7 @@ Decisions the project has deferred. Each is promoted into its parent chapter whe
 
 **libp2p binding.** Rust + C ABI vs C++. Decide once. Parent: cluster G.
 
-**Defconfig parsing in CMake.** Key=value → generated `vedam_config.h`; gate optional MQ / gRPC / Connect sources. Parent: [Engineering](../engineering/engineering.md). Plan exists in `vedam/config/README.md`.
+**Defconfig parsing.** Configure reads `.config` now. `tools/config/gen_config.py` writes the generated header from that file. [Design](../architecture/design.md#235-code-generation) describes that generator, and [the selection file](../architecture/design.md#2511-the-selection-file) describes the letter and the flags.
 
 **Official gRPC and Connect.** Replace the temporary HTTP framing with linked gRPC, and Connect over QUIC. Parent: [Interfaces — Transport hooks](../interfaces/interfaces.md#32-transport-hooks).
 

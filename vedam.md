@@ -5,7 +5,7 @@ description: Vedam Design Spec — abstract, how to read, and table of contents.
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-11-18T21:10:00+05:30
+  at: 2026-11-18T22:35:00+05:30
 ---
 
 # Vedam Design Spec
@@ -52,7 +52,7 @@ Read from [Part I](#part-i--foundations) onward, in the order below. The [chapte
 
 ### Part I — Foundations
 
-- [Mission](./chapters/foundations/mission.md) — four-condition thesis, geometry, account owner / master / Isha (Ee-Sha), mission-hardening, agents.
+- [Mission](./chapters/foundations/mission.md) — four-condition thesis, geometry, the Vedam owner, mission-hardening, agents.
 - [Motivation](./chapters/foundations/motivation.md) — structural obstacles: attention economy, companion capture, encryption-in-name-only, agent risks.
 
 ### Part II — Architecture

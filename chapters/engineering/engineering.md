@@ -5,7 +5,7 @@ description: "CMake, defconfig, Nix, tests, event-log, ops module, testnet, and 
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-09-11T00:00:00Z
+  at: 2026-11-18T22:35:00+05:30
 ---
 
 # 13. Engineering
@@ -50,7 +50,7 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-`VEDAM_NODE_CLASS=A…E` selects the profile when defconfig parsing lands. Class E is client libraries compiled to WebAssembly, not a requirement to keep **vedamd** running all the time.
+`.config` is read now. [Design](../architecture/design.md#2511-the-selection-file) describes that selection. Class E is client libraries compiled to WebAssembly, not a requirement to keep **vedamd** running all the time.
 
 ---
 

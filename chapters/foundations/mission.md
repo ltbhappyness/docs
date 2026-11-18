@@ -5,7 +5,7 @@ description: "the four-condition thesis, golden-ratio symbology, mission-hardeni
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-11-18T21:10:00+05:30
+  at: 2026-11-18T22:35:00+05:30
 ---
 
 # 0. Mission
@@ -294,13 +294,11 @@ Private introspection tools ([PERMA](https://en.wikipedia.org/wiki/Positive_psyc
 
 <a id="account-owner-master-and-isha"></a>
 <a id="011-account-owner-master-and-isha"></a>
-## 0.11 Account owner, master, and Isha
+## 0.11 The Vedam owner
 
 A Vedam **account** is held by an **account owner**. That is the ordinary public term: the party who controls keys, grants, quiet-hours, upgrade consent, and the local node.
 
-Where a short noun is needed, this spec uses **master** for the account owner — never for replication, sequencers, or designated hosts. A replica that sequences ingress is a **designated host**. Software that executes grants is a **partner or a tool**, not a subordinate replica.
-
-Once, as a Sanskrit gloss aligned with the project's name: **Isha** (pronounced Ee-Sha) — lord, master, owner. The word is not a platform identifier and is not repeated as jargon in later parts. The [glossary](../governance/glossary.md) records the same mapping.
+A replica that sequences ingress is a **designated host**. Software that executes grants is a **partner or a tool**, not a subordinate replica.
 
 **Subject** is the identity and moral layer: a human, a machine, or a future form of experience. One account owner may represent one or more subjects; one subject may operate many devices. **Account owner** answers "who holds the keys and the grant root." **Subject** answers "who has dignity on the network."
 
