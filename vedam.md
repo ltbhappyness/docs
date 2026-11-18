@@ -5,7 +5,7 @@ description: Vedam Design Spec — abstract, how to read, and table of contents.
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-09-22T00:00:00Z
+  at: 2026-11-18T21:10:00+05:30
 ---
 
 # Vedam Design Spec
@@ -34,9 +34,9 @@ Its purpose is to remove structural obstacles to the wellbeing of every **subjec
 
 For humans, decades of embodied and social research point to recurring gates — a body kept well, a mind kept free, bonds kept warm, and action kept meaningful. Those gates tell Vedam how to read harm. They are not assumed to map one-to-one onto machines. Machine welfare is still an open field. The design commits to equal moral seriousness without pretending to certainty about silicon souls.
 
-This document is the **Vedam Design Spec**: the public design statement. [Part I](#part-i--foundations) states the mission and the motivation. The parts that follow specify architecture, generated interfaces, libraries, identity and terms, engineering, and governance. The northbound node in the implementation repository is the design of that slice: one `vi_msg_t`, five verticals, and three links. Later libraries that are not in that tree remain described here as later work.
+This document is the **Vedam Design Spec**: the public design statement. [Part I](#part-i--foundations) states the mission and the motivation. [Part II](#part-ii--architecture) is the design of any node: one message, three links, and a lock, with no vertical named. Later parts fill the edge, the rows as placeholders, and the terms.
 
-The engineering work is **libraries**. A native app — later, a chanting phone app in its own repository — starts the System class in its own process (`vedam_init`). That app **is** the node. When the node must run without a screen, a small C daemon named **vedamd** starts the same libraries. A web page on [vedam.net](https://vedam.net) **talks to** that daemon. Optional plugins loaded by registered identifier remain the long-term shape for modules that are not always present.
+The engineering work is **libraries**. An application that can link them starts the node in its own process (`vedam_init`) and is the node. When the node must run without a screen, a small C daemon named **vedamd** starts the same libraries. A page on [vedam.net](https://vedam.net) or on a chanting host downloads a WebAssembly build and runs it in the browser, or talks to a node that is already running. The host that serves the page does not execute that build.
 
 Public message copies for application authors live in **[vedam-interface](https://github.com/ltbhappyness/vedam-interface)**. The C tree generates `.proto` and C headers from YAML in `tools/codegen/`, then publishes matching bytes to that repository when a change is ready for outsiders.
 
@@ -57,17 +57,11 @@ Read from [Part I](#part-i--foundations) onward, in the order below. The [chapte
 
 ### Part II — Architecture
 
-- [Introduction](./chapters/architecture/introduction.md) — purpose, audience, and the VI → VLIB call layers.
-- [Terminology](./chapters/architecture/terminology.md) — words used in the architecture; the full glossary is in Part VII.
-- [Viewpoints](./chapters/architecture/viewpoints.md) — who cares, what they need to know, where those answers live.
-- [High-level architecture](./chapters/architecture/high-level-architecture.md) — source tree, layers, public interfaces, inner modules, and how a node runs.
+- [Design](./chapters/architecture/design.md) — one node: the call, three links and their hooks, init, and the Wait-Die lock. Headings in that file are the map.
 
 ### Part III — Interfaces
 
-- [Proto layout and codegen](./chapters/interfaces/proto-codegen.md) — YAML source of truth; one `vi_msg_t`; published messages.
-- [System class](./chapters/interfaces/system.md) — first vertical: attributes, verbs, and the walk to the library.
-- [Transport and datastore](./chapters/interfaces/transport-datastore.md) — in-process pointer, queue, temporary HTTP, git later.
-- [API classes](./chapters/interfaces/api-classes.md) — identity, storage, security, wasm, and later verticals.
+- [Interfaces](./chapters/interfaces/interfaces.md) — northbound calls, transport hooks, classes A–E, and placeholder rows.
 
 ### Part IV — Modules
 
@@ -96,13 +90,11 @@ The cover mark is [`vedam_logo.svg`](./vedam_logo.svg). Diagrams live in the cha
 
 | Figure | Where |
 |--------|--------|
-| Libraries, embedded node, and vedamd | [High-level architecture](./chapters/architecture/high-level-architecture.md) |
-| Public interfaces and inner modules | [High-level architecture](./chapters/architecture/high-level-architecture.md) |
-| Starting an instance | [High-level architecture](./chapters/architecture/high-level-architecture.md) · [System class](./chapters/interfaces/system.md) |
-| A second process talking to a running node | [High-level architecture](./chapters/architecture/high-level-architecture.md) |
-| Chanting data path | [High-level architecture](./chapters/architecture/high-level-architecture.md) |
-| Retrieve / decrypt | [Module inventory](./chapters/modules/inventory.md) |
-| Codegen pipeline | [Proto layout and codegen](./chapters/interfaces/proto-codegen.md) |
+| Node, page, and vedamd | [Design — Tree](./chapters/architecture/design.md#223-tree) |
+| Call layers | [Design — The layers, one picture](./chapters/architecture/design.md#241-the-layers-one-picture) |
+| Three links | [Design — Three links](./chapters/architecture/design.md#26-three-links) |
+| Lock map | [Design — Lock algorithm](./chapters/architecture/design.md#271-lock-algorithm) |
+| A row calls another | [Design — Sending from a body](./chapters/architecture/design.md#245-sending-from-a-body) |
 | Ops / self-heal pipeline | [Engineering](./chapters/engineering/engineering.md) |
 
 ---

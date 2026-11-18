@@ -9,17 +9,11 @@ Reading order is also listed on [vedam.md](../vedam.md). Files use semantic name
 
 # Part II — Architecture
 
-* [Introduction](architecture/introduction.md) - why the architecture part exists, who it is for, layering, and what it covers.
-* [Terminology](architecture/terminology.md) - words used in the architecture; the full glossary lives in Part VII.
-* [Viewpoints](architecture/viewpoints.md) - who the architecture is for, what they need to know, and where those answers live.
-* [High-level architecture](architecture/high-level-architecture.md) - source tree, call layers, public interfaces, inner modules, vedamd, and how a node runs.
+* [Design](architecture/design.md) - One message, three links, and the Wait-Die lock of one Vedam node.
 
 # Part III — Interfaces
 
-* [Proto layout and codegen](interfaces/proto-codegen.md) - YAML source of truth; Jinja templates; generated C headers and the published messages.
-* [System class](interfaces/system.md) - First vertical: one object, attributes, verbs, and the walk from the public call to the library.
-* [Transport and datastore](interfaces/transport-datastore.md) - How a call moves in-process, on a queue, and over temporary HTTP, and where git sits later.
-* [API classes](interfaces/api-classes.md) - Verticals in the tree today, then later classes that are only a map.
+* [Interfaces](interfaces/interfaces.md) - Northbound calls, transport hooks, node classes, and placeholder rows for verticals.
 
 # Part IV — Modules
 

@@ -5,7 +5,7 @@ description: "the four-condition thesis, golden-ratio symbology, mission-hardeni
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-09-11T00:00:00Z
+  at: 2026-11-18T21:10:00+05:30
 ---
 
 # 0. Mission
@@ -286,7 +286,7 @@ Ledger practice stays simple: personal plaintext stays off the agreed ledger; ha
 
 Vedam does **not** compute, rank, or display anyone's happyness — human or machine — to anyone else, including itself. Engagement metrics are out of scope at the substrate layer.
 
-Defaults bias toward **account-owner-defined ranking**, not engagement-maximising feeds without explicit, revocable consent; toward **no protocol-level "like" or follower counts** (apps may add such constructs on top, but the substrate stays clean); toward **app-chanting** (not "chat") — low-frequency, high-intention exchange as the cultural target for the first messaging vertical; and toward **censorship resistance** shaped by community rules embedded in the network — not by money or popularity polls.
+Defaults bias toward **account-owner-defined ranking**, not engagement-maximising feeds without explicit, revocable consent; toward **no protocol-level "like" or follower counts** (apps may add such constructs on top, but the substrate stays clean); toward **app-chanting** (not "chat") — low-frequency, high-intention exchange as the cultural target for the first application; and toward **censorship resistance** shaped by community rules embedded in the network — not by money or popularity polls.
 
 Private introspection tools ([PERMA](https://en.wikipedia.org/wiki/Positive_psychology), the four conditions, or any framework the subject chooses) may exist **only** as opt-in, deletable, local mirrors — never as platform scores.
 
@@ -296,7 +296,7 @@ Private introspection tools ([PERMA](https://en.wikipedia.org/wiki/Positive_psyc
 <a id="011-account-owner-master-and-isha"></a>
 ## 0.11 Account owner, master, and Isha
 
-A Vedam **account** is held by an **account owner**. That is the ordinary public term: the party who controls keys, grants, quiet-hours, upgrade consent, and the local instance created by the System class.
+A Vedam **account** is held by an **account owner**. That is the ordinary public term: the party who controls keys, grants, quiet-hours, upgrade consent, and the local node.
 
 Where a short noun is needed, this spec uses **master** for the account owner — never for replication, sequencers, or designated hosts. A replica that sequences ingress is a **designated host**. Software that executes grants is a **partner or a tool**, not a subordinate replica.
 
@@ -363,7 +363,7 @@ The mission and the platform are not loosely coupled. Apps will carry culture; t
 |-----------|----------------|
 | Neighbourhood | Penrose / $\mathbb{Z}[\varphi]$ neighbour tables, Fibonacci backoff, navigable overlay (Kleinberg $r$ for compute placement, kept distinct from $\varphi$) |
 | Small nodes | Small nodes stay first-class (Send/Recv collectives; tiny mandatory plugin set) |
-| Bring-up | Systematic bring-up via the **System class**, not viral invite graphs at protocol layer |
+| Bring-up | The account owner starts a local node, not a viral invite graph at the platform layer |
 
 <a id="agents-platform-not-a-named-product"></a>
 ### Agents (platform, not a named product)
@@ -399,7 +399,7 @@ Software peers scale faster than human attention. The substrate therefore names 
 
 **Memory entrenchment.** Persistent agent memory can poison later judgement. Isolation per pseudonym, cryptographic erasure of readable content, and **events** for starvation or poisoned-memory — not silent drift — are the platform answers. A short note on selective loss is in [Memory, dignity, and selective loss](#memory-dignity-and-selective-loss).
 
-**Companion capture.** Products that simulate a friend in order to maximise session length attack **mind kept free** and **bonds kept warm**. Vedam's first vertical is chanting — not a companion. The substrate does not provide ranking APIs those products would need. [Motivation](./motivation.md) develops the social and companion-AI dilemma.
+**Companion capture.** Products that simulate a friend in order to maximise session length attack **mind kept free** and **bonds kept warm**. Vedam's first application is chanting — not a companion. The substrate does not provide ranking APIs those products would need. [Motivation](./motivation.md) develops the social and companion-AI dilemma.
 
 Grants always root in the account owner. There is no platform-issued grant that bypasses the master.
 
@@ -417,7 +417,7 @@ Philosophy, physics, and biology therefore enter the mission **together**: philo
 <a id="0141-small-tools-instead-of-grand-platforms"></a>
 ### 0.14.1 Small tools instead of grand platforms
 
-The non-profit steward [**ltbh.org**](https://ltbh.org) (*Let there be Happyness*) and the product [**vedam.net**](https://vedam.net) exist to build **small, practical tools** — not another empire that promises salvation while harvesting attention. The first vertical is **app-chanting**: communication as a pure primitive before marketplaces, search, or later account-owner neural applications. Each tool should remove one structural obstacle (surveillance, plaintext custody, fee extraction, identity capture) without pretending to be the subject's friend. Neural generate / train / infer / distribute capabilities live in the **platform** so those later apps need not capture memory in a cloud.
+The non-profit steward [**ltbh.org**](https://ltbh.org) (*Let there be Happyness*) and the product [**vedam.net**](https://vedam.net) exist to build **small, practical tools** — not another empire that promises salvation while harvesting attention. The first application is chanting: communication as a pure primitive before marketplaces, search, or later account-owner neural applications. Each tool should remove one structural obstacle (surveillance, plaintext custody, fee extraction, identity capture) without pretending to be the subject's friend. Neural generate / train / infer / distribute capabilities live in the **platform** so those later apps need not capture memory in a cloud.
 
 MVP realism applies: a small team and modest tooling budget imply **milestones measured in working primitives**, not whitepaper fantasies.
 

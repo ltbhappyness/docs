@@ -11,7 +11,7 @@ generated:
 
 # 11. Module inventory
 
-This part is the interior of the libraries. **vedamd** stays a small C daemon. Clusters match the high-level architecture blocks. Former numbered chapters on storage, network, consensus, execution, and data model live here.
+The design of a node is [Part II](../architecture/design.md). That part does not name verticals. The clusters below are an older interior map. Where they name a row, or treat one row as the owner of the others, [Part II](../architecture/design.md) and the placeholders in [Part III](../interfaces/interfaces.md) win. **vedamd** stays a small C daemon.
 
 NN generate / train / infer / distribute are **platform libraries**. Account-owner apps that *use* them come later; they are not a later phase of the daemon.
 
@@ -26,7 +26,7 @@ NN generate / train / infer / distribute are **platform libraries**. Account-own
 | **dlopen loader** | Mandatory vs optional plugins; signature check hook |
 | **thermal governor** | Advertise/shed; Events not files |
 | **vedamd** | C daemon: optional daemonise, then `vedam_init`, wait, `vedam_deinit` |
-| **codegen** | YAML and Jinja write the headers and `proto/vedam/` ([Proto layout and codegen](../interfaces/proto-codegen.md)) |
+| **codegen** | YAML and Jinja write the headers and the published messages ([Interfaces — Northbound](../interfaces/interfaces.md#31-northbound)) |
 
 Mandatory plugin set is small so Class C–E stay first-class. Optional plugins (NN, cloud adapter, Ops adapters, GPU offload) load on capability and account-owner Update.
 
@@ -141,7 +141,7 @@ libp2p **batched** packs, not per-message push. Class A promisory pin.
 
 Vtable skeleton only this generation.
 
-Generated IPC adapters: [Transport and datastore](../interfaces/transport-datastore.md).
+Generated adapters for the three slots: [Interfaces — Transport hooks](../interfaces/interfaces.md#32-transport-hooks).
 
 ---
 

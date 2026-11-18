@@ -29,7 +29,7 @@ Decisions the project has deferred. Each is promoted into its parent chapter whe
 
 **Defconfig parsing in CMake.** Key=value → generated `vedam_config.h`; gate optional MQ / gRPC / Connect sources. Parent: [Engineering](../engineering/engineering.md). Plan exists in `vedam/config/README.md`.
 
-**Official gRPC and Connect.** Replace the temporary HTTP/1.1 unary path with linked gRPC (and Connect over QUIC). Connect ops already stub listen. Parent: [Transport and datastore](../interfaces/transport-datastore.md).
+**Official gRPC and Connect.** Replace the temporary HTTP framing with linked gRPC, and Connect over QUIC. Parent: [Interfaces — Transport hooks](../interfaces/interfaces.md#32-transport-hooks).
 
 **Test framework.** Grow beyond three grouped test binaries toward a reusable harness and per-class suites. Parent: [Engineering](../engineering/engineering.md).
 

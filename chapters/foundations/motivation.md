@@ -5,12 +5,12 @@ description: "The structural problems Vedam exists to address."
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-09-11T00:00:00Z
+  at: 2026-11-18T18:40:00+05:30
 ---
 
 # 1. Motivation
 
-Centralised digital infrastructure has become extraordinarily capable — and extraordinarily extractive. Vedam exists because the obstacles to [Happyness — what the word means here](./mission.md#happyness--what-the-word-means-here) are often **structural**: built into who holds data, who shapes attention, who pays fees, and who sets the rules for humans **and** machines. This chapter states those obstacles in plain terms and maps them to the [four-condition thesis](./mission.md#the-four-condition-thesis). It does not specify protocol bytes; that work lives in Parts II–IV ([Architecture](../architecture/high-level-architecture.md) onward).
+Centralised digital infrastructure has become extraordinarily capable — and extraordinarily extractive. Vedam exists because the obstacles to [Happyness — what the word means here](./mission.md#happyness--what-the-word-means-here) are often **structural**: built into who holds data, who shapes attention, who pays fees, and who sets the rules for humans **and** machines. This chapter states those obstacles in plain terms and maps them to the [four-condition thesis](./mission.md#the-four-condition-thesis). It does not specify the node. That work is [Design](../architecture/design.md).
 
 > **decentralized! not divided.** — the answer is not another walled garden with a kinder logo.
 
@@ -29,7 +29,7 @@ The [attention economy](https://en.wikipedia.org/wiki/Attention_economy) treats 
 | **Bonds kept warm** | Comparison metrics, performative posting, loneliness despite “connection” |
 | **Action kept meaningful** | Work on the platform becomes performance for scores — karma-anxiety, not karma-yoga |
 
-Vedam is motivated by the need for a **substrate** — shared rules, **account-owner-held repos**, fee-less participation at MVP, no protocol-level happyness scoring — on which apps can be built without reintroducing these harms by default. [ltbh.org](https://ltbh.org) stewards the mission; **vedam.net** is the first product network aimed at this layer, starting with the [chanting data path](../architecture/high-level-architecture.md#chanting-data-path) rather than another engagement product. Neural generate / train / infer / distribute capabilities live in the **platform** so later account-owner neural applications need not capture memory in a cloud.
+Vedam is motivated by the need for a **substrate** — shared rules, **account-owner-held repos**, fee-less participation at MVP, no protocol-level happyness scoring — on which apps can be built without reintroducing these harms by default. [ltbh.org](https://ltbh.org) stewards the mission; **vedam.net** is the first product network aimed at this layer, starting with chanting rather than another engagement product. The node itself is specified in [Design](../architecture/design.md). Neural generate / train / infer / distribute capabilities live in the **platform** so later account-owner neural applications need not capture memory in a cloud.
 
 ---
 
@@ -61,7 +61,7 @@ Typical mechanisms:
 - **Memory as lock-in** — the companion “knows you,” so leaving feels like abandoning a relationship; the operator holds the plaintext.
 - **Optimisation of intimacy** — responses tuned for engagement, not for the subject’s agency.
 
-Vedam’s first vertical is **app-chanting**: high-intention, low-frequency exchange. It is not a companion and does not pretend to be the subject’s friend ([Small tools instead of grand platforms](./mission.md#small-tools-instead-of-grand-platforms)). The platform supplies identity, encryption, events, and later neural **library** services; it does **not** supply ranking APIs or a protocol happyness score those products would need. Account-owner neural applications, when they exist, **link the same libraries** (or talk to a helper) under the same grant root — they do not become a cloud landlord for memory.
+Vedam’s first application is chanting: high-intention, low-frequency exchange. It is not a companion and does not pretend to be the subject’s friend ([Small tools instead of grand platforms](./mission.md#small-tools-instead-of-grand-platforms)). The platform supplies identity, encryption, events, and later neural **library** services; it does **not** supply ranking APIs or a protocol happyness score those products would need. Account-owner neural applications, when they exist, **link the same libraries** (or talk to a helper) under the same grant root — they do not become a cloud landlord for memory.
 
 ---
 
@@ -90,7 +90,7 @@ Concrete harms follow:
 - **No fair reciprocity** — training models, targeting ads, and selling insights built from labour subjects were never paid for.
 - **Asymmetric visibility** — operators see aggregate and individual patterns; subjects see a settings page.
 
-This is not only “unfair”; it blocks **action kept meaningful**. When a creator’s work exists mainly to feed an opaque score, participation cannot be endorsed as their own. Vedam’s motivation includes **subject-owned storage** (git-shaped repos on peers), optional value exchange where data has utility ([Future horizons — human and machine paths](./mission.md#future-horizons--human-and-machine-paths)), and **no platform happyness index** — ever ([Conclusions and working principles](./mission.md#conclusions-and-working-principles)). Dual heritage: Tim Berners-Lee’s data-sovereignty line (RDF, account-owner storage) plus Ethereum-like **programmable rules** (WASM) so strangers can transact without a company server — not a clone of either.
+This is not only “unfair”; it blocks **action kept meaningful**. When a creator’s work exists mainly to feed an opaque score, participation cannot be endorsed as their own. Vedam’s motivation includes **subject-owned storage** (git-shaped repos on peers), optional value exchange where data has utility ([Future horizons — human and machine paths](./mission.md#future-horizons--human-and-machine-paths)), and **no platform happyness index** — ever ([Conclusions and working principles](./mission.md#conclusions-and-working-principles)). Dual heritage: Tim Berners-Lee’s data-sovereignty line (facts the account owner can hold) plus rules strangers can re-check so they need not trust a company server. Vedam does not clone either product. A browser build of the libraries runs in the visitor’s browser. It is not a chain by itself.
 
 The [Easterlin paradox](https://en.wikipedia.org/wiki/Easterlin_paradox) adds a macro lesson aligned with this chapter: in wealthy countries, doubling income barely moves self-reported wellbeing once social variables are accounted for. Chasing extractive growth on attention is a poor proxy for unblocking happyness; fixing **trust, health, freedom, and belonging** matters more where basic material needs are met ([embodied evidence — why the four gates matter for humans](./mission.md#embodied-evidence--why-the-four-gates-matter-for-humans)).
 
@@ -106,7 +106,7 @@ When observation becomes optimisation, harms show up in clinical and social scie
 
 **Civic trust.** Democracies require shared facts and slow confirmation. Engagement-optimised feeds reward speed and certainty over doubt. **Bonds kept warm** fail when every stranger is a potential enemy in the comments.
 
-These harms are why Vedam refuses, at the substrate layer, to optimise for “time spent,” to show protocol-level likes or follower counts, or to rank chanting without explicit account-owner consent ([Attention sovereignty and chanting](./mission.md#attention-sovereignty-and-chanting)). The first app vertical, **app-chanting**, is intentionally low-frequency and high-intention — the cultural opposite of doom-scrolling.
+These harms are why Vedam refuses, at the substrate layer, to optimise for “time spent,” to show protocol-level likes or follower counts, or to rank chanting without explicit account-owner consent ([Attention sovereignty and chanting](./mission.md#attention-sovereignty-and-chanting)). Chanting, the first application, is intentionally low-frequency and high-intention — the cultural opposite of doom-scrolling.
 
 Honest gap: the protocol does not treat clinical depression. It can refuse addictive defaults ([Mission-hardening on the platform](./mission.md#mission-hardening-on-the-platform)).
 
@@ -118,7 +118,7 @@ The problem space is no longer “people on phones.” [Internet of things](http
 
 **Expanded attack surface.** A cheap device with a default password becomes a botnet member; a home camera becomes a surveillance endpoint. **Body kept well** includes physical safety and the integrity of domestic space.
 
-**Cloud concentration.** [Cloud computing](https://en.wikipedia.org/wiki/Cloud_computing) at hyperscale creates single points of failure and temptation — one breach, one subpoena, one policy change affects millions. Vedam’s archivist/validator model ([High-level architecture](../architecture/high-level-architecture.md)) pushes toward **peer-replicated git objects** and promisor fetch — not “decentralised” in name while all bytes live in one region.
+**Cloud concentration.** [Cloud computing](https://en.wikipedia.org/wiki/Cloud_computing) at hyperscale creates single points of failure and temptation — one breach, one subpoena, one policy change affects millions. Vedam’s direction is peer-held copies, not one region holding every byte. The node that can hold a copy is specified in [Design](../architecture/design.md). The durable log is not specified in Part II.
 
 **Compatibility drift.** Fleets of devices without updates become permanent vulnerabilities. Machines, like humans, need **body kept well**: patched firmware, honest attestation ([Identity, security, and terms](../identity-security/external.md)).
 
@@ -150,7 +150,7 @@ Vedam does not promise to deliver happyness ([Happyness — what the word means 
 
 | Problem (this chapter) | Condition blocked | Direction Vedam takes |
 |------------------------|-------------------|------------------------|
-| Attention / surveillance capitalism | Mind, bonds, action | No engagement scoring at substrate; **account-owner-defined** ranking; [chanting data path](../architecture/high-level-architecture.md#chanting-data-path) |
+| Attention / surveillance capitalism | Mind, bonds, action | No engagement scoring at the substrate; ranking only when the account owner defines it |
 | Companion-AI capture | Mind, bonds | Chanting, not a friend-product; no ranking APIs; memory stays with the account owner |
 | Social-dilemma feeds & disinformation | Mind, bonds | No protocol likes/followers; community rules, not pay-to-rank |
 | Centralised keys & graphs | Mind, bonds | Chapters, E2E ciphertext in repos, ACL membership |
@@ -162,7 +162,7 @@ Vedam does not promise to deliver happyness ([Happyness — what the word means 
 
 A substrate clears poison from the well: less manipulation, less plaintext custody, less division between human and machine subjects. What subjects do with that room — friendship, craft, prayer, play, collective disaster response — is theirs. Vedam **gets out of the way** ([Conclusions and working principles](./mission.md#conclusions-and-working-principles)).
 
-Small tools first: encrypted chanting, identity, storage — not a grand platform pretending to be a friend ([Small tools instead of grand platforms](./mission.md#small-tools-instead-of-grand-platforms)). Architecture details follow in [High-level architecture](../architecture/high-level-architecture.md); threats and terms in [Identity, security, and terms](../identity-security/external.md).
+Small tools first: encrypted chanting, identity, storage — not a grand platform pretending to be a friend ([Small tools instead of grand platforms](./mission.md#small-tools-instead-of-grand-platforms)). The node is specified in [Design](../architecture/design.md). Threats and terms are in [Identity, security, and terms](../identity-security/external.md).
 
 ---
 

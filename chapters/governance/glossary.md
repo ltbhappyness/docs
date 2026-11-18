@@ -5,12 +5,12 @@ description: "project-internal terms in one place."
 tags: [design-spec]
 generated:
   by: process:ltbh-vedam
-  at: 2026-09-11T00:00:00Z
+  at: 2026-11-18T21:10:00+05:30
 ---
 
 # 16. Glossary
 
-Project-internal terms, kept in one place to avoid drift. HLA subset: [Terminology](../architecture/terminology.md).
+Project-internal terms, kept in one place to avoid drift. The node’s words are the table in [Design — Terminology](../architecture/design.md#221-terminology).
 
 ---
 
@@ -170,7 +170,7 @@ Project-internal terms, kept in one place to avoid drift. HLA subset: [Terminolo
 
 **vedam-ccl** — collective hood over NVLink/UEC/libfabric/IB/CUDA when present; Send/Recv + multicast-like otherwise.
 
-**vedamd** — a small C daemon. It loads configuration, starts the System class, and stays in the background when the node has no user interface. It is not the usual process on a phone.
+**vedamd** — a small C daemon. It calls `vedam_init` and stays in the background when the node has no user interface. It is not the usual process on a phone.
 
 **vedam-tx** — canonical versioned transaction envelope.
 
